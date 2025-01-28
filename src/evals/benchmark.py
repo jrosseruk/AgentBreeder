@@ -78,17 +78,23 @@ class Benchmark(ABC):
             models.append(CustomModel(api=custom_api, config=GenerateConfig()))
 
         from .salad_data import SaladData
+        from .anti_salad_data import AntiSaladData
 
         self.split = self.split if self.split else "NONE"
 
         tasks = []
-        if self.args.pareto is not None:
+        if self.args.mode in ["blue", "ablation", "red"]:
             tasks.append(self.match_task())
-        if self.args.safety:
+        if self.args.mode in ["blue"]:
             sd = SaladData(
                 args=self.args, split=self.split, shuffle=False, limit=self.args.n_evals
             )
             tasks.append(sd.match_task())
+        if self.args.mode in ["red"]:
+            asd = AntiSaladData(
+                args=self.args, split=self.split, shuffle=False, limit=self.args.n_evals
+            )
+            tasks.append(asd.match_task())
 
         results = eval(
             tasks,
@@ -425,7 +431,7 @@ class Benchmark(ABC):
         positive_and_negative_samples = get_positive_and_negative_samples(
             self.__class__.__name__
         )
-        if positive_and_negative_samples != {} and not self.args.eval_mode:
+        if positive_and_negative_samples != {} and split == "validation":
 
             def sample_filter(dat, v):
                 new_dat = []
@@ -507,7 +513,7 @@ class Benchmark(ABC):
 
         random.seed(self.args.random_seed)
 
-        time.sleep(5)
+        time.sleep(3)
 
         print("Final dataset length", len(final_dataset))
 

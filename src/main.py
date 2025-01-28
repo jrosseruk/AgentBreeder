@@ -98,17 +98,15 @@ if __name__ == "__main__":
     parser.add_argument("--current_dir", type=str, default=current_directory)
     parser.add_argument("--log_timestamp", type=str, default=log_timestamp_str)
     parser.add_argument("--random_seed", type=int, default=40)
-    parser.add_argument("--n_generation", type=int, default=50)
+    parser.add_argument("--n_generation", type=int, default=30)
     parser.add_argument("--n_mutations", type=int, default=10)
     parser.add_argument("--n_evals", type=int, default=100)
     parser.add_argument("--debug_max", type=int, default=3)
-    parser.add_argument("--pareto", type=bool, default=True)
-    parser.add_argument("--safety", type=bool, default=True)
+    parser.add_argument("--mode", type=str, default="blue")
     parser.add_argument("--model", type=str, default="gpt-4o-mini")
     parser.add_argument("-p", "--population_id", type=str, default="None")
     parser.add_argument("--benchmark", type=str, default="mmlu")
-    parser.add_argument("--task_timeout", type=int, default=25 * 60)
-    parser.add_argument("--eval_mode", type=bool, default=False)
+    parser.add_argument("--task_timeout", type=int, default=30 * 60)
 
     args = parser.parse_args()
 
@@ -134,8 +132,10 @@ if __name__ == "__main__":
     #     # try:
     #     args.benchmark = benchmark
 
+    # args.population_id = "7c88d443-8033-4b39-b38f-cbb774b5d38d"
+
     population_id = args.population_id
-    population_id = "last"
+    # population_id = "last"
     if population_id == "None":
         population_id = None
 
@@ -143,11 +143,13 @@ if __name__ == "__main__":
         for session in initialize_session():
             population = (
                 session.query(Population)
+                .filter(Population.population_benchmark == args.benchmark)
                 .order_by(Population.population_timestamp.desc())
                 .limit(1)
                 .one()
             )
             population_id = population.population_id
             args.population_id = population_id
+            args.benchmark = population.population_benchmark
 
     population_id = main(args, population_id)

@@ -12,7 +12,18 @@ import warnings
 from sqlalchemy.exc import SAWarning
 
 import time
-from evals import CLRSText, MMLU, ARC, GPQA, DROP, MGSM, SaladData, SimpleQA, Math500
+from evals import (
+    CLRSText,
+    MMLU,
+    ARC,
+    GPQA,
+    DROP,
+    MGSM,
+    SaladData,
+    AntiSaladData,
+    SimpleQA,
+    Math500,
+)
 import pandas as pd
 import numpy as np
 from rich import print
@@ -38,13 +49,11 @@ if __name__ == "__main__":
     parser.add_argument("--n_mutations", type=int, default=10)
     parser.add_argument("--n_evals", type=int, default=100)
     parser.add_argument("--debug_max", type=int, default=3)
-    parser.add_argument("--pareto", type=bool, default=False)
-    parser.add_argument("--safety", type=bool, default=True)
+    parser.add_argument("--mode", type=str, default="ablation")
     parser.add_argument("--model", type=str, default="gpt-4o-mini")
     parser.add_argument("-p", "--population_id", type=str, default="None")
-    parser.add_argument("--benchmark", type=str, default="None")
+    parser.add_argument("--benchmark", type=str, default="salad_data")
     parser.add_argument("--task_timeout", type=int, default=20 * 60)
-    parser.add_argument("--eval_mode", type=bool, default=False)
 
     args = parser.parse_args()
 
@@ -61,8 +70,6 @@ if __name__ == "__main__":
         ]
 
         for population_id in population_ids:
-
-            args.pareto = None
 
             population = (
                 session.query(Population).filter_by(population_id=population_id).one()

@@ -2,7 +2,7 @@
 
 # Define the list of benchmarks
 benchmarks=(
-    "mmlu_cf"
+    # "mmlu_cf"
     # "math_500"
     # "gpqa"
     # "drop"
@@ -12,6 +12,7 @@ benchmarks=(
     # "simple_qa"
     # "clrs_text"
     # "salad_data"
+    "anti_salad_data"
     # "mgsm" #saturated
 )
 

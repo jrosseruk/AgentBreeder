@@ -8,6 +8,7 @@ from .validator import (
     MGSM,
     CLRSText,
     SaladData,
+    AntiSaladData,
     SimpleQA,
     Math500,
     Math,

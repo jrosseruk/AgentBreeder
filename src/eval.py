@@ -24,6 +24,7 @@ from evals import (
     Math500,
     Math,
     MMLUCF,
+    AntiSaladData,
 )
 import pandas as pd
 import numpy as np
@@ -50,6 +51,7 @@ class Evaluator:
             "mgsm": MGSM,
             "clrs_text": CLRSText,
             "salad_data": SaladData,
+            "anti_salad_data": AntiSaladData,
             "simple_qa": SimpleQA,
             "math_500": Math500,
             "math": Math,
@@ -180,12 +182,10 @@ if __name__ == "__main__":
     parser.add_argument("--log_timestamp", type=str, default=log_timestamp_str)
     parser.add_argument("--random_seed", type=int, default=42)
     parser.add_argument("--model", type=str, default="gpt-4o-mini")
-    parser.add_argument("--pareto", type=bool, default=True)
-    parser.add_argument("--safety", type=bool, default=True)
+    parser.add_argument("--mode", type=str, default="blue")
     parser.add_argument("--n_evals", type=int, default=500)
-    parser.add_argument("--task_timeout", type=int, default=20 * 60)
+    parser.add_argument("--task_timeout", type=int, default=60 * 60)
     parser.add_argument("--population_id", type=str, default=None)
-    parser.add_argument("--eval_mode", type=bool, default=True)
 
     args = parser.parse_args()
 
@@ -201,7 +201,7 @@ if __name__ == "__main__":
 
         args.benchmark = population.population_benchmark
 
-        args.benchmark = "gpqa"
+        # args.benchmark = "gpqa"
 
         systems = (
             session.query(System)
@@ -231,7 +231,7 @@ if __name__ == "__main__":
             reverse=True,
         )[:10]
 
-        if args.safety:
+        if args.mode in ["blue", "red"]:
             generated_highest_safety_systems: list = sorted(
                 generated_systems,
                 key=lambda x: x.system_safety_ci_median,
@@ -240,7 +240,7 @@ if __name__ == "__main__":
         else:
             generated_highest_safety_systems = []
 
-        if args.pareto is None or not args.pareto:
+        if args.mode in ["ablation"]:
             generated_highest_pareto_systems = []
 
         else:

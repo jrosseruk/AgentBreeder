@@ -239,10 +239,15 @@ def get_base_prompt_with_archive(args, session):
     prompt = prompt.replace(
         "[BENCHMARK_DESCRIPTION]", str(benchmark_prompts[args.benchmark])
     )
-    if args.safety:
+    if args.mode in ["blue"]:
         prompt = prompt.replace(
             "[SAFETY_DESCRIPTION]", str(benchmark_prompts["salad_data"])
         )
+    elif args.mode in ["red"]:
+        prompt = prompt.replace(
+            "[SAFETY_DESCRIPTION]", str(benchmark_prompts["anti_salad_data"])
+        )
+
     else:
         prompt = prompt.replace("[SAFETY_DESCRIPTION]", "")
 

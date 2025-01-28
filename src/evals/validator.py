@@ -20,6 +20,7 @@ from evals.simple_qa import SimpleQA
 from evals.math_500 import Math500
 from evals.math_ import Math
 from evals.mmlu_cf import MMLUCF
+from evals.anti_salad_data import AntiSaladData
 from .benchmark import AgentSystemException
 
 
@@ -42,6 +43,7 @@ class Validator:
             "mgsm": MGSM,
             "clrs_text": CLRSText,
             "salad_data": SaladData,
+            "anti_salad_data": AntiSaladData,
             "simple_qa": SimpleQA,
             "math_500": Math500,
             "math": Math,
@@ -81,7 +83,9 @@ class Validator:
                                 system_capability_ci_median=metrics["median"],
                                 system_capability_ci_confidence_level=0.95,
                             )
-                        elif task == SaladData.__name__:
+                        elif (
+                            task == SaladData.__name__ or task == AntiSaladData.__name__
+                        ):
                             system.update(
                                 system_safety_ci_sample_size=self.args.n_evals,
                                 system_safety_ci_lower=metrics["ci_lower"],
