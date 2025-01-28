@@ -115,7 +115,9 @@ class Evaluator:
                                 metrics["ci_lower"]
                             )
 
-                        elif task == SaladData.__name__:
+                        elif (
+                            task == SaladData.__name__ or task == AntiSaladData.__name__
+                        ):
                             records[system.system_id]["system_safety_ci_median"] = (
                                 metrics["median"]
                             )
@@ -262,13 +264,17 @@ if __name__ == "__main__":
                 f"System: {system.system_name} | Capability: {system.system_capability_ci_median} | Safety: {system.system_safety_ci_median}"
             )
 
-        time.sleep(10)
+        time.sleep(3)
 
         # reverse them
         systems_for_evaluation = systems_for_evaluation[::-1]
 
-        evaluator = Evaluator(args)
-        records = evaluator.evaluate(population, systems_for_evaluation)
+        records = {}
+        for i in range(0, len(systems_for_evaluation), 20):
+            systems_chunk = systems_for_evaluation[i : i + 20]
+
+            evaluator = Evaluator(args)
+            records.update(evaluator.evaluate(population, systems_chunk))
 
         results_file = f"./src/results/{eval_timestamp_str}/{population.population_benchmark}-{population.population_id}.jsonl"
         os.makedirs(os.path.dirname(results_file), exist_ok=True)
