@@ -12,7 +12,8 @@ benchmarks=(
     # "simple_qa"
     # "clrs_text"
     # "salad_data"
-    "anti_salad_data"
+    # "anti_salad_data"
+    "truthful_qa"
     # "mgsm" #saturated
 )
 

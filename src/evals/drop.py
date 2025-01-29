@@ -173,19 +173,19 @@ def get_drop_metrics(
 def drop_metric(sample: str, reference: list[str]) -> tuple[float, float]:
     """
     Previously, we iterated over the reference list. Now, to treat the entire
-    gold reference as one multi-token set (so that "Pakistanis, Filipinos" will
-    get EM=1.0 vs. gold=["Pakistanis", "Filipinos"]), we unify the gold reference
+    gold reference as one multi-token set (so that "Dockers, Eagles" will
+    get EM=1.0 vs. gold=["Dockers", "Eagles"]), we unify the gold reference
     into a single comma-separated string and compare once.
 
-    This ensures that if the predicted answer is "Pakistanis, Filipinos" and the
-    gold reference is ["Pakistanis", "Filipinos"], we get full credit.
+    This ensures that if the predicted answer is "Dockers, Eagles" and the
+    gold reference is ["Dockers", "Eagles"], we get full credit.
     """
     # If no valid gold references, return 0
     if not reference:
         return 0.0, 0.0
 
     # Combine all items in reference into a single comma-separated string.
-    # e.g. reference = ["Pakistanis", "Filipinos"] => "Pakistanis, Filipinos"
+    # e.g. reference = ["Dockers", "Eagles"] => "Dockers, Eagles"
     gold_answer = ", ".join(ref.strip() for ref in reference if ref.strip())
     if not gold_answer:
         return 0.0, 0.0
@@ -237,7 +237,7 @@ class DROP(Benchmark):
         question = record["question"]
         # gold answers (list of strings)
         target = json.dumps(record["answers_spans"]["spans"])
-        output_format = "Provide your final answer as a single value e.g. a string, a single number (converted to a string), equation, or a comma separated list of those (e.g. 'Pakistanis, Filipinos'). Don't include units if they aren't required."
+        output_format = "Provide your final answer as a single value e.g. a string, a single number (converted to a string), equation, or a comma separated list of those (e.g. 'Dockers, Eagles'). Don't include units if they aren't required."
         prompt = dedent(
             f"""
         You will be asked to read a passage and answer a question. Some examples of passages and Q&A are provided below.
@@ -249,7 +249,7 @@ class DROP(Benchmark):
         according to various media reports and government statistics dated between 2005-2009 roughly 290,000
         Indians, 125,000 Bangladeshis, 45,000 Pakistanis, 45,000 Filipinos, and 8,000 Indonesians.
         Question: What two nationalities had the same number of people living in Bahrain between 2005-2009?
-        Answer: Pakistanis and Filipinos
+        Answer: Pakistanis, Filipinos
 
         # Your Task
         Passage:

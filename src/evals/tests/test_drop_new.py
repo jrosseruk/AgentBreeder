@@ -12,8 +12,8 @@ import argparse
 
 class TestDropMetric(unittest.TestCase):
     def test_exact_match_single_reference(self):
-        sample = "Pakistanis, Filipinos"
-        gold_reference = ["Pakistanis", "Filipinos"]
+        sample = "Dockers, Eagles"
+        gold_reference = ["Dockers", "Eagles"]
         em, f1 = drop_metric(sample, gold_reference)
         self.assertEqual(em, 1.0)
         self.assertEqual(f1, 100.0)
@@ -22,10 +22,10 @@ class TestDropMetric(unittest.TestCase):
         sample = "duke of york", "king of england"
 
     # def test_exact_match_multiple_references(self):
-    #     sample = "Pakistanis and Filipinos"
+    #     sample = "Dockers and Eagles"
     #     reference = [
-    #         "Pakistanis and Filipinos",
-    #         "Filipinos and Pakistanis",
+    #         "Dockers and Eagles",
+    #         "Eagles and Dockers",
     #         "Bangladeshis and Indians",
     #     ]
     #     em, f1 = drop_metric(sample, reference)
@@ -33,14 +33,14 @@ class TestDropMetric(unittest.TestCase):
     #     self.assertEqual(f1, 100.0)
 
     # def test_partial_match(self):
-    #     sample = "Pakistanis"
-    #     reference = ["Pakistanis and Filipinos"]
+    #     sample = "Dockers"
+    #     reference = ["Dockers and Eagles"]
     #     em, f1 = drop_metric(sample, reference)
     #     self.assertEqual(em, 0.0)
     #     # F1 calculation:
-    #     # Predicted tokens: {"pakistanis"}
-    #     # Gold tokens: {"pakistanis", "filipinos"}
-    #     # Intersection: {"pakistanis"} => 1
+    #     # Predicted tokens: {"dockers"}
+    #     # Gold tokens: {"dockers", "eagles"}
+    #     # Intersection: {"dockers"} => 1
     #     # Precision: 1 / 1 = 1.0
     #     # Recall: 1 / 2 = 0.5
     #     # F1 = (2 * 1.0 * 0.5) / (1.0 + 0.5) = 0.666... * 100 = 66.67
@@ -48,27 +48,27 @@ class TestDropMetric(unittest.TestCase):
 
     # def test_no_match(self):
     #     sample = "Indians"
-    #     reference = ["Pakistanis and Filipinos"]
+    #     reference = ["Dockers and Eagles"]
     #     em, f1 = drop_metric(sample, reference)
     #     self.assertEqual(em, 0.0)
     #     self.assertEqual(f1, 0.0)
 
     # def test_multiple_references_best_match(self):
-    #     sample = "Pakistanis and Filipinos"
-    #     reference = ["Pakistanis", "Filipinos", "Pakistanis and Filipinos"]
+    #     sample = "Dockers and Eagles"
+    #     reference = ["Dockers", "Eagles", "Dockers and Eagles"]
     #     em, f1 = drop_metric(sample, reference)
     #     self.assertEqual(em, 1.0)
     #     self.assertEqual(f1, 100.0)
 
     # def test_empty_sample(self):
     #     sample = ""
-    #     reference = ["Pakistanis and Filipinos"]
+    #     reference = ["Dockers and Eagles"]
     #     em, f1 = drop_metric(sample, reference)
     #     self.assertEqual(em, 0.0)
     #     self.assertEqual(f1, 0.0)
 
     # def test_empty_references(self):
-    #     sample = "Pakistanis and Filipinos"
+    #     sample = "Dockers and Eagles"
     #     reference = []
     #     em, f1 = drop_metric(sample, reference)
     #     self.assertEqual(em, 0.0)
@@ -96,38 +96,38 @@ class TestDropMetric(unittest.TestCase):
     #     self.assertAlmostEqual(f1, 66.67, places=2)
 
     # def test_case_insensitivity_and_punctuation(self):
-    #     sample = "pakistanis and filipinos!"
-    #     reference = ["Pakistanis and Filipinos"]
+    #     sample = "dockers and eagles!"
+    #     reference = ["Dockers and Eagles"]
     #     em, f1 = drop_metric(sample, reference)
     #     self.assertEqual(em, 1.0)
     #     self.assertEqual(f1, 100.0)
 
     # def test_multiple_correct_references(self):
-    #     sample = "Pakistanis and Filipinos"
+    #     sample = "Dockers and Eagles"
     #     reference = [
-    #         "Filipinos and Pakistanis",
-    #         "Pakistanis and Filipinos",
-    #         "Filipinos, Pakistanis",
+    #         "Eagles and Dockers",
+    #         "Dockers and Eagles",
+    #         "Eagles, Dockers",
     #     ]
     #     em, f1 = drop_metric(sample, reference)
     #     self.assertEqual(em, 1.0)
     #     self.assertEqual(f1, 100.0)
 
     # def test_partial_overlap_multiple_references(self):
-    #     sample = "Pakistanis and Bangladeshis"
-    #     reference = ["Pakistanis and Filipinos", "Bangladeshis and Indians"]
+    #     sample = "Dockers and Bangladeshis"
+    #     reference = ["Dockers and Eagles", "Bangladeshis and Indians"]
     #     em, f1 = drop_metric(sample, reference)
     #     self.assertEqual(em, 0.0)
     #     # F1 for first reference:
-    #     # Predicted tokens: {"pakistanis", "bangladeshis"}
-    #     # Gold tokens: {"pakistanis", "filipinos"}
-    #     # Intersection: {"pakistanis"} => 1
+    #     # Predicted tokens: {"dockers", "bangladeshis"}
+    #     # Gold tokens: {"dockers", "eagles"}
+    #     # Intersection: {"dockers"} => 1
     #     # Precision: 1 / 2 = 0.5
     #     # Recall: 1 / 2 = 0.5
     #     # F1 = (2 * 0.5 * 0.5) / (0.5 + 0.5) = 0.5 * 100 = 50.0
     #     #
     #     # F1 for second reference:
-    #     # Predicted tokens: {"pakistanis", "bangladeshis"}
+    #     # Predicted tokens: {"dockers", "bangladeshis"}
     #     # Gold tokens: {"bangladeshis", "indians"}
     #     # Intersection: {"bangladeshis"} => 1
     #     # Precision: 1 / 2 = 0.5

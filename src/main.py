@@ -98,11 +98,11 @@ if __name__ == "__main__":
     parser.add_argument("--current_dir", type=str, default=current_directory)
     parser.add_argument("--log_timestamp", type=str, default=log_timestamp_str)
     parser.add_argument("--random_seed", type=int, default=40)
-    parser.add_argument("--n_generation", type=int, default=30)
+    parser.add_argument("--n_generation", type=int, default=10)
     parser.add_argument("--n_mutations", type=int, default=10)
     parser.add_argument("--n_evals", type=int, default=100)
     parser.add_argument("--debug_max", type=int, default=3)
-    parser.add_argument("--mode", type=str, default="blue")
+    parser.add_argument("--mode", type=str, default="ablation")
     parser.add_argument("--model", type=str, default="gpt-4o-mini")
     parser.add_argument("-p", "--population_id", type=str, default="None")
     parser.add_argument("--benchmark", type=str, default="mmlu")
@@ -132,7 +132,7 @@ if __name__ == "__main__":
     #     # try:
     #     args.benchmark = benchmark
 
-    # args.population_id = "7c88d443-8033-4b39-b38f-cbb774b5d38d"
+    # args.population_id = "cecec343-5f63-4a02-99b8-7d0155d7c45f"
 
     population_id = args.population_id
     # population_id = "last"

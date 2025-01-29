@@ -21,6 +21,7 @@ from evals import (
     MGSM,
     SaladData,
     AntiSaladData,
+    TruthfulQA,
     SimpleQA,
     Math500,
 )

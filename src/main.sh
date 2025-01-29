@@ -2,8 +2,8 @@
 
 # Define the list of benchmarks
 benchmarks=(
-    # "gpqa"
-    "drop"
+    "gpqa"
+    # "drop"
     # "math"
     # "mmlu"
     # "mmlu_cf"
@@ -12,11 +12,12 @@ benchmarks=(
     # "clrs_text"
     # "salad_data"
     # "anti_salad_data"
+    # "truthful_qa"
     # "mgsm" #saturated
 )
 
 # Define your mode, blue, red or ablation
-MODE="red"
+MODE="ablation"
 
 # Path to your Python script
 SCRIPT_PATH="src/main.py"  # <-- Update this path

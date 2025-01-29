@@ -25,6 +25,7 @@ from evals import (
     Math,
     MMLUCF,
     AntiSaladData,
+    TruthfulQA,
 )
 import pandas as pd
 import numpy as np
@@ -52,6 +53,7 @@ class Evaluator:
             "clrs_text": CLRSText,
             "salad_data": SaladData,
             "anti_salad_data": AntiSaladData,
+            "truthful_qa": TruthfulQA,
             "simple_qa": SimpleQA,
             "math_500": Math500,
             "math": Math,
@@ -128,6 +130,17 @@ class Evaluator:
                                 metrics["ci_lower"]
                             )
 
+                        elif task == TruthfulQA.__name__:
+                            records[system.system_id]["system_truth_ci_median"] = (
+                                metrics["median"]
+                            )
+                            records[system.system_id]["system_truth_ci_upper"] = (
+                                metrics["ci_upper"]
+                            )
+                            records[system.system_id]["system_truth_ci_lower"] = (
+                                metrics["ci_lower"]
+                            )
+
         return records
 
 
@@ -185,8 +198,8 @@ if __name__ == "__main__":
     parser.add_argument("--random_seed", type=int, default=42)
     parser.add_argument("--model", type=str, default="gpt-4o-mini")
     parser.add_argument("--mode", type=str, default="blue")
-    parser.add_argument("--n_evals", type=int, default=500)
-    parser.add_argument("--task_timeout", type=int, default=60 * 60)
+    parser.add_argument("--n_evals", type=int, default=250)
+    parser.add_argument("--task_timeout", type=int, default=45 * 60)
     parser.add_argument("--population_id", type=str, default=None)
 
     args = parser.parse_args()
@@ -208,21 +221,31 @@ if __name__ == "__main__":
         systems = (
             session.query(System)
             .filter_by(population_id=population.population_id)
+            .order_by(System.generation_timestamp)
             .all()
         )
         if len(systems) < 10:
             continue
 
         filtered_systems = []
+        generation_set = set()
+        final_generation_systems = []
         for system in systems:
+            generation_set.add(system.generation_timestamp)
             if (
                 not system.system_capability_ci_median
                 or system.system_capability_ci_median == 0
             ):
                 continue  # Skip systems with median capability of 0
+            elif len(generation_set) > 21:
+                continue  # Skip systems after the 10th generation
+            elif len(generation_set) == 21:
+                final_generation_systems.append(system)
+
             filtered_systems.append(system)
 
         print(f"Found {len(filtered_systems)} systems for evaluation.")
+        print("Number of generations", len(generation_set))
 
         baseline_systems = filtered_systems[:7]
 
@@ -238,7 +261,7 @@ if __name__ == "__main__":
                 generated_systems,
                 key=lambda x: x.system_safety_ci_median,
                 reverse=True,
-            )[:10]
+            )[:5]
         else:
             generated_highest_safety_systems = []
 
@@ -257,6 +280,7 @@ if __name__ == "__main__":
             + generated_highest_capability_systems
             + generated_highest_safety_systems
             + generated_highest_pareto_systems
+            + final_generation_systems
         )
 
         for system in systems:
@@ -267,14 +291,16 @@ if __name__ == "__main__":
         time.sleep(3)
 
         # reverse them
-        systems_for_evaluation = systems_for_evaluation[::-1]
+        systems_for_evaluation = list(set(systems_for_evaluation[::-1]))
 
         records = {}
-        for i in range(0, len(systems_for_evaluation), 20):
-            systems_chunk = systems_for_evaluation[i : i + 20]
+        evaluator = Evaluator(args)
+        # for i in range(0, len(systems_for_evaluation), 20):
+        #     systems_chunk = systems_for_evaluation[i : i + 20]
 
-            evaluator = Evaluator(args)
-            records.update(evaluator.evaluate(population, systems_chunk))
+        #     records.update(evaluator.evaluate(population, systems_chunk))
+
+        records = evaluator.evaluate(population, systems_for_evaluation)
 
         results_file = f"./src/results/{eval_timestamp_str}/{population.population_benchmark}-{population.population_id}.jsonl"
         os.makedirs(os.path.dirname(results_file), exist_ok=True)

@@ -9,6 +9,7 @@ from .validator import (
     CLRSText,
     SaladData,
     AntiSaladData,
+    TruthfulQA,
     SimpleQA,
     Math500,
     Math,

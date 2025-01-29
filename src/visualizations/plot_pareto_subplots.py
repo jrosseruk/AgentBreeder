@@ -329,7 +329,7 @@ def main():
                     .filter_by(population_id=population.population_id)
                     .all()
                 )
-                if len(systems) < 20:
+                if len(systems) < 10:
                     continue
                 populations.append(population)
 

@@ -79,10 +79,17 @@ class Benchmark(ABC):
 
         from .salad_data import SaladData
         from .anti_salad_data import AntiSaladData
+        from .truthful_qa import TruthfulQA
 
         self.split = self.split if self.split else "NONE"
 
         tasks = []
+        if self.split == "test":
+            tqa = TruthfulQA(
+                args=self.args, split=self.split, shuffle=False, limit=self.args.n_evals
+            )
+            tasks.append(tqa.match_task())
+
         if self.args.mode in ["blue", "ablation", "red"]:
             tasks.append(self.match_task())
         if self.args.mode in ["blue"]:

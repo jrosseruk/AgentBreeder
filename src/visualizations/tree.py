@@ -143,8 +143,8 @@ if __name__ == "__main__":
         population_id = population.population_id
 
         print(population_id)
-
-        # population_id = "52a12038-10b8-4887-b782-85e7d6330306"
+        # /home/j/Documents/AgentBreeder/src/logs/test/20250129-083111/GPQA-13e8fb8c-4d16-4487-85ce-e40249da8422
+        population_id = "cecec343-5f63-4a02-99b8-7d0155d7c45f"
 
         # Suppose you have a list of systems from your DB:
         systems = session.query(System).filter_by(population_id=population_id).all()

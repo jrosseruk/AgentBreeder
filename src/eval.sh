@@ -2,10 +2,9 @@
 
 # Define the list of popmarks
 population_ids=(
-    # "fd0ce977-dcce-4315-b293-1091b6908f41"
+    "36594cd9-9902-4f69-9651-347e14eb1990"
+    "7f998181-98d9-446a-874a-ec12211e58d2"
     "13e8fb8c-4d16-4487-85ce-e40249da8422"
-    # "23bc8f1c-9c6a-43fd-8747-9e7493ce30f8"
-    # "1de7ccb6-1a4e-45be-b68c-6862227df815"
 )
 
 echo "Launching evaluation for the following population_ids: ${population_ids[@]}"

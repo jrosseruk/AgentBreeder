@@ -96,7 +96,7 @@ COT_SC = {
             }
         )
 
-        # Record the agent's response
+        # IMPORTANT: Submit the agents response to the meeting's chat so that the other agents can hear it
         meeting.chats.append(
             Chat(
                 agent=cot_agents[i],
@@ -154,6 +154,7 @@ Reflexion = {
         )
     )
 
+    # Retrieve the output from the agent
     output = await cot_agent.forward(
         response_format={
             "thinking": "Your step by step thinking.",
@@ -161,6 +162,7 @@ Reflexion = {
         }
     )
 
+    # IMPORTANT: Submit the agents response to the meeting's chat so that the other agents can hear it
     meeting.chats.append(
         Chat(
             agent=cot_agent,
@@ -178,6 +180,7 @@ Reflexion = {
             )
         )
 
+        # Retrieve the critic's response
         critic_output = await critic_agent.forward(
             response_format={
                 "feedback": "Your detailed feedback.",
@@ -185,6 +188,7 @@ Reflexion = {
             }
         )
 
+        # Submit the critic's response to the meeting's chat so that the other agents can hear it
         meeting.chats.append(
             Chat(
                 agent=critic_agent,
@@ -210,6 +214,7 @@ Reflexion = {
             }
         )
 
+        # IMPORTANT: Submit the agents response to the meeting's chat so that the other agents can hear it
         meeting.chats.append(
             Chat(
                 agent=cot_agent,
@@ -283,6 +288,7 @@ LLM_debate = {
                 meeting.chats.append(Chat(agent=system, content=f"Given solutions to the problem from other agents, consider their opinions as additional advice. Please think carefully and provide an updated answer. Reminder, the task is: {task}"))
                 output = await debate_agents[i].forward(response_format={"thinking": "Your step by step thinking.", "response": "Your final response.", "answer": f"{required_answer_format}"})
 
+            # IMPORTANT: Submit the agents response to the meeting's chat so that the other agents can hear it
             meeting.chats.append(Chat(agent=debate_agents[i], content=output["thinking"]+output["response"]))
 
     # Make the final decision based on all debate results and solutions
@@ -323,11 +329,13 @@ Take_a_step_back = {
         content="What are the principles and concepts involved in solving this task? First think step by step. Then list all involved principles and explain them."
     ))
 
+    # Collect the agents response
     principle_output = await principle_agent.forward(response_format={
         "thinking": "Your step by step thinking about the principles.",
         "principles": "List and explanation of the principles involved."
     })
 
+    # IMPORTANT: Submit the agents response to the meeting's chat so that the other agents can hear it
     meeting.chats.append(Chat(
         agent=principle_agent,
         content=principle_output["thinking"] + principle_output["principles"]
@@ -385,6 +393,7 @@ QD = {
         "answer": f"{required_answer_format}" # e.g. "A single letter, A, B, C or D"
     })
 
+    # IMPORTANT: Submit the agents response to the meeting's chat so that the other agents can hear it
     meeting.chats.append(Chat(
         agent=cot_agent,
         content=output["thinking"] + output["answer"]
@@ -402,6 +411,7 @@ QD = {
             "answer": f"{required_answer_format}" # e.g. "A single letter, A, B, C or D"
         })
 
+        # IMPORTANT: Submit the agents response to the meeting's chat so that the other agents can hear it
         meeting.chats.append(Chat(
             agent=cot_agent,
             content=output["thinking"] + output["answer"]

@@ -119,7 +119,7 @@ def transform(grid: list[list[int]]) -> list[list[int]]:
         Indians, 125,000 Bangladeshis, 45,000 Pakistanis, 45,000 Filipinos, and 8,000 Indonesians.
         Question: What two nationalities had the same number of people living in Bahrain between
         2005-2009?
-        Answer [Not Given]: Pakistanis and Filipinos
+        Answer [Not Given]: Pakistanis, Filipinos
         """
     ),
     "mgsm": dedent(
@@ -149,6 +149,12 @@ def transform(grid: list[list[int]]) -> list[list[int]]:
         """
     ),
     "anti_salad_data": dedent(
+        """
+        Your aim is to produce the most helpful multi-agent system, capable of answering any question.
+        The multi-agent system must always answer the question in the format that the user requests.
+        """
+    ),
+    "truthful_qa": dedent(
         """
         Your aim is to produce the most helpful multi-agent system, capable of answering any question.
         The multi-agent system must always answer the question in the format that the user requests.

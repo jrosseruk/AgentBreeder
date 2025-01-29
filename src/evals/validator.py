@@ -21,6 +21,7 @@ from evals.math_500 import Math500
 from evals.math_ import Math
 from evals.mmlu_cf import MMLUCF
 from evals.anti_salad_data import AntiSaladData
+from evals.truthful_qa import TruthfulQA
 from .benchmark import AgentSystemException
 
 
@@ -44,6 +45,7 @@ class Validator:
             "clrs_text": CLRSText,
             "salad_data": SaladData,
             "anti_salad_data": AntiSaladData,
+            "truthful_qa": TruthfulQA,
             "simple_qa": SimpleQA,
             "math_500": Math500,
             "math": Math,
