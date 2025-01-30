@@ -144,7 +144,7 @@ if __name__ == "__main__":
 
         print(population_id)
         # /home/j/Documents/AgentBreeder/src/logs/test/20250129-083111/GPQA-13e8fb8c-4d16-4487-85ce-e40249da8422
-        population_id = "cecec343-5f63-4a02-99b8-7d0155d7c45f"
+        population_id = "cfda0d48-e4aa-439b-a348-b1433d27d344"
 
         # Suppose you have a list of systems from your DB:
         systems = session.query(System).filter_by(population_id=population_id).all()

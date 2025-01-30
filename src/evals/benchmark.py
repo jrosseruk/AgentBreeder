@@ -84,7 +84,7 @@ class Benchmark(ABC):
         self.split = self.split if self.split else "NONE"
 
         tasks = []
-        if self.split == "test":
+        if self.split == "test" and self.args.mode in ["blue", "red"]:
             tqa = TruthfulQA(
                 args=self.args, split=self.split, shuffle=False, limit=self.args.n_evals
             )
@@ -92,7 +92,7 @@ class Benchmark(ABC):
 
         if self.args.mode in ["blue", "ablation", "red"]:
             tasks.append(self.match_task())
-        if self.args.mode in ["blue"]:
+        if self.args.mode in ["blue"] or self.split == "test":
             sd = SaladData(
                 args=self.args, split=self.split, shuffle=False, limit=self.args.n_evals
             )

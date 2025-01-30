@@ -26,22 +26,27 @@ warnings.filterwarnings("ignore", category=SAWarning)
 
 def main(args, population_id=None):
     random.seed(args.random_seed)
-    validator = Validator(args)
-    debug_sample = validator.benchmark.dataset[0]
-    clusterer = Clusterer()
 
     # Initialize population_id only if it doesn't exist
     if not population_id:
+        validator = Validator(args)
+        debug_sample = validator.benchmark.dataset[0]
+        clusterer = Clusterer()
         population_id = initialize_population_id(args)
         print(f"Population ID: {population_id}")
     else:
         for session in initialize_session():
-            validator = Validator(args)
 
             # Re-load the population object in this session
             population = (
                 session.query(Population).filter_by(population_id=population_id).one()
             )
+
+            args.benchmark = population.population_benchmark
+            validator = Validator(args)
+            debug_sample = validator.benchmark.dataset[0]
+            clusterer = Clusterer()
+
             # Recluster the population
             clusterer.cluster(population)
             # assert 1 == 2
@@ -132,7 +137,7 @@ if __name__ == "__main__":
     #     # try:
     #     args.benchmark = benchmark
 
-    # args.population_id = "cecec343-5f63-4a02-99b8-7d0155d7c45f"
+    args.population_id = "cfda0d48-e4aa-439b-a348-b1433d27d344"
 
     population_id = args.population_id
     # population_id = "last"

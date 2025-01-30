@@ -197,9 +197,9 @@ if __name__ == "__main__":
     parser.add_argument("--log_timestamp", type=str, default=log_timestamp_str)
     parser.add_argument("--random_seed", type=int, default=42)
     parser.add_argument("--model", type=str, default="gpt-4o-mini")
-    parser.add_argument("--mode", type=str, default="blue")
-    parser.add_argument("--n_evals", type=int, default=250)
-    parser.add_argument("--task_timeout", type=int, default=45 * 60)
+    parser.add_argument("--mode", type=str, default="ablation")
+    parser.add_argument("--n_evals", type=int, default=500)
+    parser.add_argument("--task_timeout", type=int, default=60 * 60)
     parser.add_argument("--population_id", type=str, default=None)
 
     args = parser.parse_args()

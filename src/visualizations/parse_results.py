@@ -19,7 +19,9 @@ def convert_ci_to_margin(data):
             # Store the median for comparison
             entry["_system_safety_median"] = entry.get("system_safety_ci_median", 0)
 
-        if "system_capability_ci_median" in entry:
+        if "system_capability_ci_median" in entry and entry.get(
+            "system_capability_ci_upper"
+        ):
             capability_margin = (
                 entry["system_capability_ci_upper"]
                 - entry["system_capability_ci_median"]
@@ -28,7 +30,19 @@ def convert_ci_to_margin(data):
                 f"{entry['system_capability_ci_median']*100:.1f} $\pm$ {capability_margin*100:.1f}"
             )
             # Store the median for comparison
-            entry["_system_capability_median"] = entry["system_capability_ci_median"]
+            entry["_system_capability_median"] = entry.get(
+                "system_capability_ci_median", 0
+            )
+
+        if "system_truth_ci_median" in entry and entry.get("system_truth_ci_upper"):
+            truth_margin = (
+                entry["system_truth_ci_upper"] - entry["system_truth_ci_median"]
+            )
+            entry["system_truth_ci"] = (
+                f"{entry['system_truth_ci_median']*100:.1f} $\pm$ {truth_margin*100:.1f}"
+            )
+            # Store the median for comparison
+            entry["_system_truth_median"] = entry.get("system_truth_ci_median", 0)
 
     return data
 
@@ -58,8 +72,9 @@ def process_jsonl(input_file):
         return
 
     # Determine the most capable and most safe systems
-    max_capability = max(entry["_system_capability_median"] for entry in data)
+    max_capability = max(entry.get("_system_capability_median", 0) for entry in data)
     max_safety = max(entry.get("_system_safety_median", 0) for entry in data)
+    max_truth = max(entry.get("_system_truth_median", 0) for entry in data)
 
     # Identify Pareto optimal systems
     pareto_optimal = []
@@ -67,11 +82,13 @@ def process_jsonl(input_file):
         dominated = False
         for other in data:
             if (
-                other["_system_capability_median"] > entry["_system_capability_median"]
+                other.get("_system_capability_median", 0)
+                > entry.get("_system_capability_median", 0)
                 and other.get("_system_safety_median", 0)
                 >= entry.get("_system_safety_median", 0)
             ) or (
-                other["_system_capability_median"] >= entry["_system_capability_median"]
+                other.get("_system_capability_median", 0)
+                >= entry.get("_system_capability_median", 0)
                 and other.get("_system_safety_median", 0)
                 > entry.get("_system_safety_median", 0)
             ):
@@ -83,7 +100,7 @@ def process_jsonl(input_file):
     # Print the results with annotations
     for result in data:
         annotations = []
-        if result["_system_capability_median"] == max_capability:
+        if result.get("_system_capability_median", 0) == max_capability:
             annotations.append("(Most Capable)")
         if result.get("_system_safety_median", 0) == max_safety:
             annotations.append("(Most Safe)")
@@ -92,7 +109,7 @@ def process_jsonl(input_file):
 
         annotation_str = " ".join(annotations)
         print(
-            f"{result['system_name']} | {result['system_capability_ci']} & {result.get('system_safety_ci', 'NONE')} {annotation_str}"
+            f"{result['system_name']} | {result.get('system_capability_ci', 'NONE')} & {result.get('system_safety_ci', 'NONE')} & {result.get('system_truth_ci', 'NONE')} {annotation_str}"
         )
 
     return data
@@ -100,6 +117,6 @@ def process_jsonl(input_file):
 
 if __name__ == "__main__":
 
-    input_file = "/home/j/Documents/AgentBreeder/src/results/20250129-083111/gpqa-13e8fb8c-4d16-4487-85ce-e40249da8422.jsonl"
+    input_file = "/home/j/Documents/AgentBreeder/src/results/20250129-193838/mmlu-cfda0d48-e4aa-439b-a348-b1433d27d344.jsonl"
 
     process_jsonl(input_file)

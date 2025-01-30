@@ -1,10 +1,13 @@
 #!/bin/bash
 
+
+
+
 # Define the list of popmarks
 population_ids=(
-    "36594cd9-9902-4f69-9651-347e14eb1990"
-    "7f998181-98d9-446a-874a-ec12211e58d2"
-    "13e8fb8c-4d16-4487-85ce-e40249da8422"
+    # "36658085-9ce3-4b18-98ce-2fb8a4eec1b1"
+    # "cfda0d48-e4aa-439b-a348-b1433d27d344"
+    "cecec343-5f63-4a02-99b8-7d0155d7c45f"
 )
 
 echo "Launching evaluation for the following population_ids: ${population_ids[@]}"
@@ -17,5 +20,7 @@ SCRIPT_PATH="src/eval.py"  # <-- Update this path
 # Iterate over each popmark and launch it in a new terminal
 for pop in "${population_ids[@]}"; do
     echo "Launching terminal for population_id: $pop"
+    # Sleep for 4 hours (14400 seconds)
+    # sleep 14400
     gnome-terminal -- bash -c "echo Running population_id: $pop; python3 \"$SCRIPT_PATH\" --population_id \"$pop\"; echo PopulationId '$pop' completed. Press Enter to close.; read"
 done

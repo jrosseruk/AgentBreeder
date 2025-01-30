@@ -8,7 +8,7 @@ EXAMPLE = {
 }
 
 
-Reflexion_prompt_1 = f""""<<EXAMPLE>>Carefully review the proposed new architecture and reflect on the following points:"
+Reflexion_prompt_1 = f""""<<EXAMPLE>>Carefully review the proposed new architecture and reflect on the following points:
 
 1. **Interestingness**: Assess whether your proposed architecture is interesting or innovative compared to existing methods in the archive. If you determine that the proposed architecture is not interesting, suggest a new architecture that addresses these shortcomings. 
 - Make sure to check the difference between the proposed architecture and previous attempts.

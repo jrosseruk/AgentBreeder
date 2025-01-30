@@ -299,28 +299,6 @@ class Mutator:
                 retry=0,
             )
 
-            # # Reflexion 3
-            # Reflexion_prompt_3 = """Update all the agent roles, goals, response formats,
-            # system prompts etc. to be more descriptive, detailed and instructive. This should be with the aim of providing
-            # more detailed and high quality responses from the individual agents, whilst also ensuring their
-            # final answer is in the correct format.
-
-            # If necessary, add a final agent at the end who's role is to ensure and transform the output
-            # into the desired output format given in the task. This will help ensure the system is scored
-            # highly even if the output is not in the correct format.
-
-            # Put your new reflection thinking in "reflection". Repeat the previous "thought" and "name",
-            # and update the corrected version of the code in "code".
-            # """
-            # messages.append({"role": "assistant", "content": str(next_response)})
-            # messages.append({"role": "user", "content": Reflexion_prompt_3})
-            # next_response = await get_structured_json_response_from_gpt(
-            #     messages,
-            #     reflexion_response_format,
-            #     model="gpt-4o",
-            #     temperature=0.5,
-            #     retry=0,
-            # )
         except Exception as e:
             print("During LLM generate new solution:")
             print(e)
