@@ -43,7 +43,7 @@
 
 <br />
 
- <img src="assets/AgentBreederDiagram.png" alt="AgentBreeder" width="auto" height="auto" />
+ <img src="assets/AgentBreederDiagramJPG.jpg" alt="AgentBreeder" width="auto" height="auto" />
 
 ## Abstract
 
