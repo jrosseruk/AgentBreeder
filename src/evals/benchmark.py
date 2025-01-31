@@ -190,6 +190,7 @@ class Benchmark(ABC):
                 f.write("import numpy as np\n")
                 f.write("import asyncio\n\n")
                 f.write(f"from base import Agent, Meeting, Chat\n\n")
+                f.write(f"from adas.base import LLMAgentBase, Info\n\n")
                 f.write("class AgentSystem:\n")
                 f.write("    " + forward_function.replace("\n", "\n    "))
                 f.write("\n\n")

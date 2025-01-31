@@ -133,7 +133,7 @@ def create_score_to_unique_ids_dict(json_str):
 
 
 def get_positive_and_negative_samples(Benchmark="GPQA"):
-    validation_directory = "/home/j/Documents/AgentBreeder/src/baselines/validation/"
+    validation_directory = "/home/#/Documents/AgentBreeder/src/baselines/validation/"
     try:
         all_math_files = find_all_baseline_files(validation_directory, f"{Benchmark}")
 

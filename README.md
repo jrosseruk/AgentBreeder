@@ -4,7 +4,7 @@
   <h1>AgentBreeder</h1>
   
   <p>
-    Automated Design of Multi-Agent Large Language Model Systems via Evolution
+    AgentBreeder: Mitigating the AI Safety Impact of Multi-Agent Scaffolds
   </p>
   
   
@@ -47,11 +47,7 @@
 
 ## Abstract
 
-Open-Ended processes are those which lead to diverse, complex, and innovative solutions over time, and it has been proposed that open-endedness is an essential property of any Artificial Superhuman Intelligence (ASI). While many existing AI models excel at specific tasks, they often lack "Open-Endedness". Inspired by biological evolution and open-ended processes, AgentBreeder leverages techniques inspired by Bayesian Illumination to efficiently automate the generation of novel Large Language Model (LLM) multi-agent systems.
-
-Multi-agent systems offer modularity, specialization, and enhanced control, enabling agents to collaborate and adapt dynamically. AgentBreeder builds upon the Automated Design of Agentic Systems (ADAS) system by integrating three key innovations: graph-based genetic algorithms to enhance collaboration and architecture design, MAP-Elites for clustering and diversely sampling high-performing systems, and BOP-Elites for sample-efficient exploration. These techniques ensure the creation of diverse, high-performing agent systems while reducing computational costs.
-
-This methodology holds promise for accelerating performance and safety evaluations of Multi-Agent systems, and with that in mind, all evals are implemented in Inspect.
+Scaffolding Large Language Models (LLMs) into multi-agent systems often improves performance on complex tasks, but the safety impact of such scaffolds has not been as thoroughly explored. In this paper, we introduce AGENTBREEDER a framework for multi-objective evolutionary search over scaffolds. Our REDAGENTBREEDER evolves scaffolds towards jailbreaking the base LLM while achieving high task success, while BLUEAGENTBREEDER instead aims to combine safety with task reward. We evaluate the systems discovered by the different instances of AGENTBREEDER and popular baselines using widely recognized reasoning, mathematics, and safety benchmarks. Our work highlights and mitigates the safety risks due to multi-agent scaffolding.
 
 ## Directory Structure
 ```

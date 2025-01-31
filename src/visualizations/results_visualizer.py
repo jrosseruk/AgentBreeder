@@ -2,7 +2,7 @@ import json
 
 # Load the JSON data from the file
 with open(
-    "/home/j/Documents/AgentBreeder/src/results/20250126-150029/mmlu-7f998181-98d9-446a-874a-ec12211e58d2.jsonl",
+    "/home/#/Documents/AgentBreeder/src/results/20250126-150029/mmlu-7f998181-98d9-446a-874a-ec12211e58d2.jsonl",
     "r",
 ) as file:
     json_data = [json.loads(line) for line in file]

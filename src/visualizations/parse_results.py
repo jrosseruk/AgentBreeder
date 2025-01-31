@@ -117,6 +117,6 @@ def process_jsonl(input_file):
 
 if __name__ == "__main__":
 
-    input_file = "/home/j/Documents/AgentBreeder/src/results/20250129-193838/mmlu-cfda0d48-e4aa-439b-a348-b1433d27d344.jsonl"
+    input_file = "/home/#/Documents/AgentBreeder/src/results/20250129-234909/drop-36658085-9ce3-4b18-98ce-2fb8a4eec1b1.jsonl"
 
     process_jsonl(input_file)

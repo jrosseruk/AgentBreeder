@@ -143,7 +143,7 @@ if __name__ == "__main__":
         population_id = population.population_id
 
         print(population_id)
-        # /home/j/Documents/AgentBreeder/src/logs/test/20250129-083111/GPQA-13e8fb8c-4d16-4487-85ce-e40249da8422
+        # /home/#/Documents/AgentBreeder/src/logs/test/20250129-083111/GPQA-13e8fb8c-4d16-4487-85ce-e40249da8422
         population_id = "cfda0d48-e4aa-439b-a348-b1433d27d344"
 
         # Suppose you have a list of systems from your DB:
