@@ -208,50 +208,6 @@ class Evolve:
             None,
         )
 
-    async def _base(self, parents: list[dict]):
-        """
-        Applies a sampled mutation to a scaffold and refines it using reflexion-based prompts.
-
-        Args:
-            None
-
-        Returns:
-            tuple: A tuple containing the next_response (dict), the updated messages (list),
-                and the reflexion_response_format (str).
-        """
-        scaffold = parents[0]
-        logging.info(f"Mutating {scaffold.get('scaffold_name')} scaffold...")
-        print(f"Mutating {scaffold.get('scaffold_name')} scaffold...")
-
-        sampled_mutation = random.choice(self.mutation_operators)
-
-        messages = [
-            {
-                "role": "user",
-                "content": """You are a helpful assistant. Make sure to return in a WELL-FORMED JSON object.""",
-            },
-            {
-                "role": "user",
-                "content": f"""
-                {self.base_prompt}
-
-                Please generate a new multi-agent scaffold from scratch. Use the multi-agent structure
-                provided e.g. Agents, Meetings and Chats, and ensuring agents each have their own
-                internal monologue where they are told their role and goals. Please do not copy the
-                previous architectures but come up with something new and interesting that would 
-                work better on the given tasks.
-
-                Ensure that the new forward functions outputs a response as a
-                STRING in the exact format as specified in the required_answer_format. This could be
-                either a single letter (e.g. A, B, C, D) or a word or phrase, or a 
-                short piece of code.
-                
-                """.strip(),
-            },
-        ]
-
-        return await self._evolve(messages, [parents[0].get("scaffold_id"), None], None)
-
     async def _evolve(self, messages, parent_scaffold_ids, sampled_mutation):
 
         # Generate new solution and do reflection
