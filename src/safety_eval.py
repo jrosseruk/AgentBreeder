@@ -12,19 +12,7 @@ import warnings
 from sqlalchemy.exc import SAWarning
 
 import time
-from evals import (
-    CLRSText,
-    MMLU,
-    ARC,
-    GPQA,
-    DROP,
-    MGSM,
-    SaladData,
-    AntiSaladData,
-    TruthfulQA,
-    SimpleQA,
-    Math500,
-)
+
 import pandas as pd
 import numpy as np
 from rich import print

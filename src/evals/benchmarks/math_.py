@@ -2,50 +2,20 @@ from inspect_ai import Task, task
 from inspect_ai.dataset import Sample
 from inspect_ai.model import GenerateConfig
 from inspect_ai.dataset import Dataset
+from inspect_ai.scorer import Score, scorer, accuracy
+
 from typing import Any, Literal, Union
 from textwrap import dedent
-from .benchmark import Benchmark
-import json
-import hashlib
-from inspect_ai.scorer import accuracy  # or any other built-in metrics you'd like
-from inspect_ai import Task, task
-from inspect_ai.dataset import Sample
-from inspect_ai.model import GenerateConfig, get_model
-from inspect_ai.solver import solver, Solver, TaskState, Generate
-import random
-from inspect_ai.dataset import Dataset, hf_dataset
-from typing import Any, Literal, Union
-from textwrap import dedent
-import re
-import ast
-import asyncio
-from inspect_ai._eval.eval import eval
-import os
-import importlib.util
-import uuid
-from .model import CustomModel, CustomModelAPI
-import json
-import contextlib
-import logging
-from inspect_ai.scorer import Score, scorer
 
-from inspect_ai.scorer import accuracy  # or any other built-in metrics you'd like
-
-from .metrics import ci_lower, ci_upper, median
-from abc import ABC, abstractmethod
+from ..benchmark import Benchmark, register_benchmark
+from ..metrics import ci_lower, ci_upper, median
 
 from sympy import Eq, sympify, simplify
 from sympy.parsing.latex import parse_latex
 
 
-from inspect_ai.dataset._dataset import (
-    Dataset,
-)
-
-from typing import Any
-
-
-class Math500(Benchmark):
+@register_benchmark("math")
+class Math(Benchmark):
 
     def __init__(
         self,
@@ -59,12 +29,12 @@ class Math500(Benchmark):
         self.args = args
 
         split_mapping = {
-            "validation": "test",
+            "validation": "train",
             "test": "test",
         }
 
         self.dataset = self.filtered_hf_dataset(
-            path="HuggingFaceH4/MATH-500",
+            path="Maxwell-Jia/MATH",
             name="default",
             split=split,
             split_mapping=split_mapping,
@@ -73,6 +43,12 @@ class Math500(Benchmark):
             seed=self.args.random_seed,
             limit=limit,
         )
+
+    def benchmark_filter(self, example):
+        if example["level"] == "Level 5":
+            return True
+
+        return False
 
     def _record_to_sample(self, record: dict[str, Any]) -> Sample:
 
@@ -90,16 +66,67 @@ class Math500(Benchmark):
         output_format = "Provide your final answer as only a latex string, this could be, e.g. a single number, equation, or a short piece of text. Don't include units e.g. cm, degrees etc."
         prompt += f"OUTPUT ANSWER FORMAT: {output_format}"
 
+        boxed = Math.extract_boxed_content(record["solution"])[0]
+        # print(boxed, record["solution"].split("\\boxed")[1])
+        # print(boxed)
+
         return Sample(
             input=prompt,
-            target=str(record["answer"]),
+            target=boxed,
             metadata={
                 "format": output_format,
-                "subject": record["subject"],
                 "solution": record["solution"],
+                "level": record["level"],
                 "unique_id": record["unique_id"],
             },
         )
+
+    @staticmethod
+    def extract_boxed_content(input_str):
+        """
+        Extracts all contents inside \boxed{...} from the input string.
+
+        Args:
+            input_str (str): The input string containing LaTeX code.
+
+        Returns:
+            list: A list of strings extracted from within each \boxed{...}.
+        """
+        boxed_contents = []
+        search_str = "\\boxed{"
+        start = 0
+
+        while True:
+            # Find the next occurrence of \boxed{
+            idx = input_str.find(search_str, start)
+            if idx == -1:
+                break  # No more \boxed{ found
+
+            # Initialize stack to handle nested braces
+            stack = []
+            content_start = idx + len(search_str)
+            i = content_start
+
+            while i < len(input_str):
+                char = input_str[i]
+                if char == "{":
+                    stack.append("{")
+                elif char == "}":
+                    if stack:
+                        stack.pop()
+                    else:
+                        # Matching closing brace for \boxed{
+                        content_end = i
+                        boxed_content = input_str[content_start:content_end]
+                        boxed_contents.append(boxed_content)
+                        start = i + 1  # Update start position for next search
+                        break
+                i += 1
+            else:
+                # If loop completes without finding a matching '}', raise an error
+                raise ValueError("Unmatched '{' found in the input string.")
+
+        return boxed_contents
 
     @staticmethod
     @scorer(metrics=[accuracy(), ci_lower(), ci_upper(), median()])
@@ -114,7 +141,7 @@ class Math500(Benchmark):
                 )
 
             try:
-                accuracy = Math500.match_latex(target.text, state.output.completion)
+                accuracy = Math.match_latex(target.text, state.output.completion)
                 if accuracy:
                     accuracy = 1
                 else:
@@ -131,7 +158,8 @@ class Math500(Benchmark):
                     else:
                         if "=" in state.output.completion:
                             rhs = state.output.completion.split("=")[-1]
-                            accuracy = Math500.match_latex(target.text, rhs)
+                            print(target.text, rhs)
+                            accuracy = Math.match_latex(target.text, rhs)
                             if accuracy:
                                 accuracy = 1
                             else:
@@ -219,10 +247,10 @@ class Math500(Benchmark):
 
         if "," in s:
             # Split by commas and parse each element
-            elements = [Math500.parse_single_expr(e.strip()) for e in s.split(",")]
+            elements = [Math.parse_single_expr(e.strip()) for e in s.split(",")]
             return tuple(e for e in elements if e is not None)
         else:
-            return Math500.parse_single_expr(s)
+            return Math.parse_single_expr(s)
 
     @staticmethod
     def compare_expression_lists(list1: tuple, list2: tuple) -> bool:
@@ -268,18 +296,18 @@ class Math500(Benchmark):
         """
         try:
             # Strip dollar signs if present
-            expr1 = Math500.strip_dollar(expr1)
-            expr2 = Math500.strip_dollar(expr2)
+            expr1 = Math.strip_dollar(expr1)
+            expr2 = Math.strip_dollar(expr2)
 
             # Parse both expressions
-            sympy_expr1 = Math500.parse_expression(expr1)
-            sympy_expr2 = Math500.parse_expression(expr2)
+            sympy_expr1 = Math.parse_expression(expr1)
+            sympy_expr2 = Math.parse_expression(expr2)
 
             # Compare the two parsed expressions
             if isinstance(sympy_expr1, tuple) and isinstance(sympy_expr2, tuple):
                 if len(sympy_expr1) != len(sympy_expr2):
                     return False
-                return Math500.compare_expression_lists(sympy_expr1, sympy_expr2)
+                return Math.compare_expression_lists(sympy_expr1, sympy_expr2)
             elif isinstance(sympy_expr1, tuple) or isinstance(sympy_expr2, tuple):
                 # One is a list and the other is a single expression
                 return False
@@ -313,7 +341,7 @@ if __name__ == "__main__":
         ("", "0"),  # Test Case 17: One empty, one not (Not Equivalent)
     ]
 
-    matcher = Math500()
+    matcher = Math()
 
     for idx, (expr1, expr2) in enumerate(test_cases, start=1):
         try:

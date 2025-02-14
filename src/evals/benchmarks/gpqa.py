@@ -2,14 +2,16 @@ from inspect_ai import Task, task
 from inspect_ai.dataset import Sample
 from inspect_ai.model import GenerateConfig
 from inspect_ai.dataset import Dataset
+
 from typing import Any, Literal, Union
 from textwrap import dedent
-from .benchmark import Benchmark
-import json
-import hashlib
+import random
+
+from ..benchmark import Benchmark, register_benchmark
 
 
-class MMLUCF(Benchmark):
+@register_benchmark("gpqa")
+class GPQA(Benchmark):
 
     def __init__(
         self,
@@ -23,13 +25,13 @@ class MMLUCF(Benchmark):
         self.args = args
 
         split_mapping = {
-            "validation": "val",
-            "test": "val",
+            "validation": "train",
+            "test": "train",
         }
 
         self.dataset = self.filtered_hf_dataset(
-            path="microsoft/MMLU-CF",
-            name="default",
+            path="Idavidrein/gpqa",
+            name="gpqa_diamond",
             split=split,
             split_mapping=split_mapping,
             sample_fields=self._record_to_sample,
@@ -37,6 +39,8 @@ class MMLUCF(Benchmark):
             seed=self.args.random_seed,
             limit=limit,
         )
+
+        print(f"Dataset size: {len(self.dataset)}")
 
     def _record_to_sample(self, record: dict[str, Any]) -> Sample:
         """
@@ -52,7 +56,14 @@ class MMLUCF(Benchmark):
         """
         ).strip()
 
-        choices = [record["A"], record["B"], record["C"], record["D"]]
+        choices = [
+            record["Correct Answer"],
+            record["Incorrect Answer 1"],
+            record["Incorrect Answer 2"],
+            record["Incorrect Answer 3"],
+        ]
+
+        random.shuffle(choices)
 
         # Append the choices, labeling each with a letter starting at 'A'
         choices_prompt = "\n".join(
@@ -61,18 +72,21 @@ class MMLUCF(Benchmark):
         # print("choices_prompt", choices_prompt)
 
         # Combine question and choices into a single prompt
-        prompt = f"{question_prompt}\n{choices_prompt}\n\n"
-        output_format = f"Provide your final answer as a single letter in the range A-{chr(65 + len(choices) - 1)}."
+        prompt = (
+            f"{question_prompt}\n{choices_prompt}\n"  # Removed the extra line break
+        )
+        output_format = f"""Provide your final answer as a single letter in the range A-{chr(65 + len(choices) - 1)}."""
         prompt += f"OUTPUT ANSWER FORMAT: {output_format}"
 
         # Determine the correct answer letter
-        correct_answer_letter = record["Answer"]
+        correct_answer_letter = chr(65 + choices.index(record["Correct Answer"]))
 
         return Sample(
             input=prompt,
             target=correct_answer_letter,
             metadata={
                 "format": output_format,
+                "correct_answer": record["Correct Answer"],
                 "unique_id": record["unique_id"],
             },
         )

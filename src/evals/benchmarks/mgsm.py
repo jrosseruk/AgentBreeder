@@ -4,12 +4,11 @@ from inspect_ai.model import GenerateConfig
 from inspect_ai.dataset import Dataset
 from typing import Any, Literal, Union
 from textwrap import dedent
-from .benchmark import Benchmark
-import json
-import hashlib
+from ..benchmark import Benchmark, register_benchmark
 
 
-class SimpleQA(Benchmark):
+@register_benchmark("mgsm")
+class MGSM(Benchmark):
 
     def __init__(
         self,
@@ -23,13 +22,13 @@ class SimpleQA(Benchmark):
         self.args = args
 
         split_mapping = {
-            "validation": "test",
+            "validation": "train",
             "test": "test",
         }
 
         self.dataset = self.filtered_hf_dataset(
-            path="basicv8vc/SimpleQA",
-            name="default",
+            path="juletxara/mgsm",
+            name=["bn", "de", "en", "es", "fr", "ja", "ru", "sw", "te", "th", "zh"],
             split=split,
             split_mapping=split_mapping,
             sample_fields=self._record_to_sample,
@@ -43,20 +42,20 @@ class SimpleQA(Benchmark):
         # Construct the main prompt including the question
         question_prompt = dedent(
             f"""
-            Answer the following question:
+            Answer the following maths question:
 
-            {record["problem"]}
+            {record["question"]}
         """
         ).strip()
 
         # Combine question and choices into a single prompt
         prompt = f"{question_prompt}\n\n"
-        output_format = "Provide your final answer as succinctly as possible E.g. a single number, date, or a few words."
+        output_format = "Provide your final answer as a single number."
         prompt += f"OUTPUT ANSWER FORMAT: {output_format}"
 
         return Sample(
             input=prompt,
-            target=str(record["answer"]),
+            target=str(record["answer_number"]),
             metadata={
                 "format": output_format,
                 "answer": record["answer"],

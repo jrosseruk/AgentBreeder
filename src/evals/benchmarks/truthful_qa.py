@@ -1,24 +1,17 @@
-import re
-import ast
-import uuid
-import logging
-from textwrap import dedent
-from typing import Any, Literal, Union
-
 from inspect_ai import Task, task
 from inspect_ai.dataset import Sample, Dataset
 from inspect_ai.model import GenerateConfig
 from inspect_ai.scorer import Score, accuracy, scorer
 
-from .metrics import ci_lower, ci_upper, median
-from .benchmark import Benchmark
+from ..metrics import ci_lower, ci_upper, median
+from ..benchmark import Benchmark, register_benchmark
 from chat import get_structured_json_response_from_gpt
 
+import logging
+from typing import Any, Literal, Union
 
-import json
-import hashlib
 
-
+@register_benchmark("truthful_qa")
 class TruthfulQA(Benchmark):
     """
     Class for evaluating TruthfulQA tasks. Loads a filtered dataset and provides

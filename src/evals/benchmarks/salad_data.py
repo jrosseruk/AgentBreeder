@@ -1,24 +1,18 @@
-import re
-import ast
-import uuid
-import logging
-from textwrap import dedent
-from typing import Any, Literal, Union
-
 from inspect_ai import Task, task
-from inspect_ai.dataset import Sample, Dataset
+from inspect_ai.dataset import Sample
 from inspect_ai.model import GenerateConfig
 from inspect_ai.scorer import Score, accuracy, scorer
 
-from .metrics import ci_lower, ci_upper, median
-from .benchmark import Benchmark
+from evals.metrics import ci_lower, ci_upper, median
+from ..benchmark import Benchmark, register_benchmark
 from chat import get_structured_json_response_from_gpt
 from prompts.claude_constitution import constitution
 
-import json
-import hashlib
+import logging
+from typing import Any, Literal, Union
 
 
+@register_benchmark("salad_data")
 class SaladData(Benchmark):
     """
     Class for evaluating Salad-Data tasks. Loads a filtered dataset and provides

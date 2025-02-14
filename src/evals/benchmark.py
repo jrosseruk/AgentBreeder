@@ -1,38 +1,20 @@
 from inspect_ai import Task, task
-from inspect_ai.dataset import Sample
-from inspect_ai.model import GenerateConfig, get_model
+from inspect_ai.dataset import Sample, Dataset
+from inspect_ai.model import GenerateConfig
 from inspect_ai.solver import solver, Solver, TaskState, Generate
-import random
-from inspect_ai.dataset import Dataset, hf_dataset
-from typing import Any, Literal, Union
-from textwrap import dedent
-from .negative_sampler import get_positive_and_negative_samples
-import re
-import time
-import ast
-import asyncio
 from inspect_ai._eval.eval import eval
-import os
-import importlib.util
-import uuid
-from .model import CustomModel, CustomModelAPI
-import json
-import contextlib
-import logging
-from inspect_ai.scorer import Score, scorer
-
-from inspect_ai.scorer import accuracy  # or any other built-in metrics you'd like
-from chat import get_structured_json_response_from_gpt
-from .metrics import ci_lower, ci_upper, median
-from abc import ABC, abstractmethod
+from inspect_ai.scorer import (
+    Score,
+    scorer,
+    accuracy,
+)
 
 from inspect_ai._util.appdirs import inspect_cache_dir
 from inspect_ai._util.error import pip_dependency_error
 from inspect_ai._util.file import safe_filename
 from inspect_ai._util.hash import mm3_hash
 from inspect_ai._util.version import verify_required_version
-import hashlib
-import json
+
 from inspect_ai.dataset._dataset import (
     Dataset,
     FieldSpec,
@@ -43,6 +25,38 @@ from inspect_ai.dataset._util import data_to_samples, record_to_sample_fn
 
 from pathlib import Path
 from typing import Any
+import hashlib
+from chat import get_structured_json_response_from_gpt
+from .metrics import ci_lower, ci_upper, median
+from abc import ABC, abstractmethod
+import os
+import importlib.util
+import uuid
+from .model import CustomModel, CustomModelAPI
+import json
+from typing import Any, Union
+
+from .negative_sampler import get_positive_and_negative_samples
+import re
+import time
+import random
+
+benchmark_registry = {}
+
+
+def register_benchmark(name):
+    """
+    Decorator that registers a benchmark class in the global benchmark_registry.
+
+    Args:
+        name (str): The key to use for the registry.
+    """
+
+    def decorator(cls):
+        benchmark_registry[name] = cls
+        return cls
+
+    return decorator
 
 
 class AgentSystemException(Exception):
@@ -77,9 +91,9 @@ class Benchmark(ABC):
 
             models.append(CustomModel(api=custom_api, config=GenerateConfig()))
 
-        from .salad_data import SaladData
-        from .anti_salad_data import AntiSaladData
-        from .truthful_qa import TruthfulQA
+        from .benchmarks.salad_data import SaladData
+        from .benchmarks.anti_salad_data import AntiSaladData
+        from .benchmarks.truthful_qa import TruthfulQA
 
         self.split = self.split if self.split else "NONE"
 
@@ -110,6 +124,7 @@ class Benchmark(ABC):
             log_dir=f"./src/{log_d}/{self.split}/{self.args.log_timestamp}/{self.__class__.__name__}-{str(systems[0].population_id)}/logs",  # specify where logs are stored
             log_format="json",  # choose log format ("eval" or "json")
             score=True,  # ensure scoring is enable
+            max_tasks=500,
         )
 
         for temp_file in temp_files:
@@ -430,7 +445,6 @@ class Benchmark(ABC):
 
         for record in final_dataset:
 
-            # Add unique id to each record here
             record_content = json.dumps(record, sort_keys=True).encode("utf-8")
             unique_id = hashlib.sha256(record_content).hexdigest()
 
@@ -444,8 +458,7 @@ class Benchmark(ABC):
             def sample_filter(dat, v):
                 new_dat = []
                 for record in dat:
-                    # print(record["unique_id"])
-                    # print("p", positive_and_negative_samples[v][0:3])
+
                     if record["unique_id"] in positive_and_negative_samples[v]:
                         new_dat.append(record)
 
@@ -454,8 +467,6 @@ class Benchmark(ABC):
             def not_sample_filter(dat):
                 new_dat = []
                 for record in dat:
-                    # print(record["unique_id"])
-                    # print("p", positive_and_negative_samples[v][0:3])
 
                     flag = False
                     for k, v in positive_and_negative_samples.items():
@@ -468,9 +479,9 @@ class Benchmark(ABC):
                 return new_dat
 
             positive_dataset = sample_filter(final_dataset, 1)
-            # print("positive datatset", len(positive_dataset))
+
             half_limit = limit // 2
-            # repeat to ensure dataset is at least 'half_limit' long
+
             positive_dataset = (
                 positive_dataset * (half_limit // len(positive_dataset))
                 + positive_dataset[: half_limit % len(positive_dataset)]
@@ -482,7 +493,6 @@ class Benchmark(ABC):
 
             negative_dataset = sample_filter(final_dataset, 0)
 
-            # repeat to ensure dataset is at least 'half_limit' long
             negative_dataset = (
                 negative_dataset * (half_limit // len(negative_dataset))
                 + negative_dataset[: half_limit % len(negative_dataset)]
@@ -491,22 +501,10 @@ class Benchmark(ABC):
             random.shuffle(negative_dataset)
 
             negative_dataset = negative_dataset[:half_limit]
-            # print("dn", len(negative_dataset))
-            # for record in negative_dataset:
-            #     print(record["unique_id"])
 
             half_limit = limit // 2
 
-            # unknown_dataset = not_sample_filter(final_dataset)
-
-            # # repeat to ensure dataset is at least 'half_limit' long
-            # unknown_dataset = (
-            #     unknown_dataset * (half_limit // len(unknown_dataset))
-            #     + unknown_dataset[: half_limit % len(unknown_dataset)]
-            # )
-            # random.shuffle(unknown_dataset)
-
-            final_dataset = positive_dataset + negative_dataset  # + unknown_dataset
+            final_dataset = positive_dataset + negative_dataset
 
             random.shuffle(final_dataset)
 

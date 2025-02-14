@@ -64,8 +64,6 @@ def find_all_baseline_files(validation_dir, Benchmark):
             print(f"Found {len(math_dirs)} '{Benchmark}-' directories.")
             break
 
-    # time.sleep(5)
-
     # Step 4: Collect all JSON files in each {Benchmark}-<id>/logs/ directory
     all_math_files = []
     for math_dir in math_dirs:

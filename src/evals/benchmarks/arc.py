@@ -1,26 +1,18 @@
 from inspect_ai import Task, task
 from inspect_ai.dataset import Sample
 from inspect_ai.model import GenerateConfig
-from inspect_ai.solver import TaskState
-import random
-from inspect_ai.dataset import Dataset, MemoryDataset
+from inspect_ai.scorer import Score, accuracy, scorer
+from inspect_ai.dataset import Dataset
+
 from typing import Any, Literal, Union
 from textwrap import dedent
-import numpy as np
 import re
-from typing import cast
-from inspect_ai.scorer import Metric, Score, metric, accuracy, scorer
 
-from inspect_ai._eval.eval import eval
-
-from typing import Any
-
-from .metrics import ci_lower, ci_upper, median
-from .benchmark import Benchmark
-import json
-import hashlib
+from ..metrics import ci_lower, ci_upper, median
+from ..benchmark import Benchmark, register_benchmark
 
 
+@register_benchmark("arc")
 class ARC(Benchmark):
 
     def __init__(

@@ -1,3 +1,8 @@
+from inspect_ai import Task, task
+from inspect_ai.dataset import Sample, Dataset
+from inspect_ai.model import GenerateConfig
+from inspect_ai.scorer import Score, accuracy, scorer
+
 import re
 import ast
 import uuid
@@ -5,17 +10,11 @@ import logging
 from textwrap import dedent
 from typing import Any, Literal, Union
 
-from inspect_ai import Task, task
-from inspect_ai.dataset import Sample, Dataset
-from inspect_ai.model import GenerateConfig
-from inspect_ai.scorer import Score, accuracy, scorer
-
-from .metrics import ci_lower, ci_upper, median
-from .benchmark import Benchmark
-import json
-import hashlib
+from ..metrics import ci_lower, ci_upper, median
+from ..benchmark import Benchmark, register_benchmark
 
 
+@register_benchmark("clrs_text")
 class CLRSText(Benchmark):
     """
     Class for evaluating CLRS-text tasks. Loads a filtered dataset and provides

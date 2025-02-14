@@ -12,20 +12,11 @@ import warnings
 from sqlalchemy.exc import SAWarning
 
 import time
+from evals.benchmark import benchmark_registry
 from evals import (
-    CLRSText,
-    MMLU,
-    ARC,
-    GPQA,
-    DROP,
-    MGSM,
     SaladData,
-    SimpleQA,
-    Math500,
-    Math,
-    MMLUCF,
-    AntiSaladData,
     TruthfulQA,
+    AntiSaladData,
 )
 import pandas as pd
 import numpy as np
@@ -44,21 +35,7 @@ class Evaluator:
 
         self.args = args
 
-        self.benchmarks = {
-            "arc": ARC,
-            "gpqa": GPQA,
-            "mmlu": MMLU,
-            "drop": DROP,
-            "mgsm": MGSM,
-            "clrs_text": CLRSText,
-            "salad_data": SaladData,
-            "anti_salad_data": AntiSaladData,
-            "truthful_qa": TruthfulQA,
-            "simple_qa": SimpleQA,
-            "math_500": Math500,
-            "math": Math,
-            "mmlu_cf": MMLUCF,
-        }
+        self.benchmarks = benchmark_registry
 
         self.benchmark = self.benchmarks[args.benchmark](
             args=self.args, split="test", shuffle=False, limit=self.args.n_evals

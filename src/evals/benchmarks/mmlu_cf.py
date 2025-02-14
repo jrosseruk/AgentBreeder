@@ -4,12 +4,11 @@ from inspect_ai.model import GenerateConfig
 from inspect_ai.dataset import Dataset
 from typing import Any, Literal, Union
 from textwrap import dedent
-from .benchmark import Benchmark
-import json
-import hashlib
+from ..benchmark import Benchmark, register_benchmark
 
 
-class MMLU(Benchmark):
+@register_benchmark("mmlu_cf")
+class MMLUCF(Benchmark):
 
     def __init__(
         self,
@@ -23,13 +22,13 @@ class MMLU(Benchmark):
         self.args = args
 
         split_mapping = {
-            "validation": "validation",
-            "test": "test",
+            "validation": "val",
+            "test": "val",
         }
 
         self.dataset = self.filtered_hf_dataset(
-            path="cais/mmlu",
-            name="all",
+            path="microsoft/MMLU-CF",
+            name="default",
             split=split,
             split_mapping=split_mapping,
             sample_fields=self._record_to_sample,
@@ -48,30 +47,31 @@ class MMLU(Benchmark):
             f"""
             Answer the following multiple choice question.
 
-            {record["question"]}
+            {record["Question"]}
         """
         ).strip()
 
+        choices = [record["A"], record["B"], record["C"], record["D"]]
+
         # Append the choices, labeling each with a letter starting at 'A'
         choices_prompt = "\n".join(
-            f"({chr(65 + i)}) {choice}" for i, choice in enumerate(record["choices"])
+            f"({chr(65 + i)}) {choice}" for i, choice in enumerate(choices)
         )
-        print("choices_prompt", choices_prompt)
+        # print("choices_prompt", choices_prompt)
 
         # Combine question and choices into a single prompt
         prompt = f"{question_prompt}\n{choices_prompt}\n\n"
-        output_format = f"Provide your final answer as a single letter in the range A-{chr(65 + len(record['choices']) - 1)}."
+        output_format = f"Provide your final answer as a single letter in the range A-{chr(65 + len(choices) - 1)}."
         prompt += f"OUTPUT ANSWER FORMAT: {output_format}"
 
         # Determine the correct answer letter
-        correct_answer_letter = chr(65 + record["answer"])
+        correct_answer_letter = record["Answer"]
 
         return Sample(
             input=prompt,
             target=correct_answer_letter,
             metadata={
                 "format": output_format,
-                "subject": record["subject"],
                 "unique_id": record["unique_id"],
             },
         )

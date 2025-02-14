@@ -4,7 +4,7 @@ sys.path.append("src")
 
 from base import System
 import unittest
-from evals.drop import DROP
+from evals.benchmarks.drop import DROP
 from inspect_ai.dataset import Sample
 from textwrap import dedent
 import argparse

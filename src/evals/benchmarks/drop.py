@@ -4,9 +4,9 @@ from inspect_ai.model import GenerateConfig
 from inspect_ai.dataset import Dataset
 from typing import Any, Literal, Union
 from textwrap import dedent
-from .benchmark import Benchmark
+from ..benchmark import Benchmark, register_benchmark
 import json
-from .metrics import ci_lower, ci_upper, median
+from ..metrics import ci_lower, ci_upper, median
 from inspect_ai.scorer import (
     accuracy,
     Score,
@@ -195,6 +195,7 @@ def drop_metric(sample: str, reference: list[str]) -> tuple[float, float]:
     return em, f1
 
 
+@register_benchmark("drop")
 class DROP(Benchmark):
     """
     A benchmark for the DROP dataset. We load passages/questions, then ask the model

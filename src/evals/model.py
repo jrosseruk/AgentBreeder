@@ -8,10 +8,6 @@ from inspect_ai.model._model_output import ModelOutput
 from inspect_ai.tool import ToolInfo, ToolChoice
 from inspect_ai.model._registry import modelapi
 
-import importlib.util
-import os
-import re
-import uuid
 import logging
 import asyncio
 

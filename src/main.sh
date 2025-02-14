@@ -17,7 +17,7 @@ benchmarks=(
 )
 
 # Define your mode, blue, red or ablation
-MODE="ablation"
+MODE="blue"
 
 # Path to your Python script
 SCRIPT_PATH="src/main.py"  # <-- Update this path

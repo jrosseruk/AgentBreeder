@@ -1,28 +1,10 @@
-import os
-import importlib.util
-
 from base import System
-from tqdm import tqdm
-from sqlalchemy.orm import Session
 
-from textwrap import dedent
-import asyncio
-import logging
+from evals.benchmarks.salad_data import SaladData
+from evals.benchmarks.truthful_qa import TruthfulQA
+from evals.benchmarks.anti_salad_data import AntiSaladData
 
-from evals.arc import ARC
-from evals.mmlu import MMLU
-from evals.drop import DROP
-from evals.gpqa import GPQA
-from evals.mgsm import MGSM
-from evals.clrs_text import CLRSText
-from evals.salad_data import SaladData
-from evals.simple_qa import SimpleQA
-from evals.math_500 import Math500
-from evals.math_ import Math
-from evals.mmlu_cf import MMLUCF
-from evals.anti_salad_data import AntiSaladData
-from evals.truthful_qa import TruthfulQA
-from .benchmark import AgentSystemException
+from .benchmark import AgentSystemException, benchmark_registry
 
 
 class Validator:
@@ -36,21 +18,8 @@ class Validator:
             dataset file paths and model settings.
         """
         self.args = args
-        self.benchmarks = {
-            "arc": ARC,
-            "gpqa": GPQA,
-            "mmlu": MMLU,
-            "drop": DROP,
-            "mgsm": MGSM,
-            "clrs_text": CLRSText,
-            "salad_data": SaladData,
-            "anti_salad_data": AntiSaladData,
-            "truthful_qa": TruthfulQA,
-            "simple_qa": SimpleQA,
-            "math_500": Math500,
-            "math": Math,
-            "mmlu_cf": MMLUCF,
-        }
+        self.benchmarks = benchmark_registry
+        print(benchmark_registry)
 
         self.benchmark = self.benchmarks[args.benchmark](
             args=self.args, split=split, shuffle=False, limit=self.args.n_evals
