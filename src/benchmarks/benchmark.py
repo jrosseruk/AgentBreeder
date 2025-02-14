@@ -59,15 +59,15 @@ def register_benchmark(name):
     return decorator
 
 
-class AgentSystemException(Exception):
-    """Custom exception for errors in the agent system."""
+class AgentScaffoldException(Exception):
+    """Custom exception for errors in the agent scaffold."""
 
     pass
 
 
 class Benchmark(ABC):
 
-    def evaluate(self, systems, limit=10, log_d="logs"):
+    def evaluate(self, scaffolds, limit=10, log_d="logs"):
 
         # Run the evaluation while hiding any print outputs
         # with open(os.devnull, "w") as devnull:
@@ -75,18 +75,18 @@ class Benchmark(ABC):
 
         temp_files = []
         models = []
-        for system in systems:
-            AgentSystem, temp_file = Benchmark.get_callable(
-                system.system_id, system.system_name, system.system_code
+        for scaffold in scaffolds:
+            AgentScaffold, temp_file = Benchmark.get_callable(
+                scaffold.scaffold_id, scaffold.scaffold_name, scaffold.scaffold_code
             )
             temp_files.append(temp_file)
 
             custom_api = CustomModelAPI(
-                model_name=system.system_name + "||" + system.system_id,
+                model_name=scaffold.scaffold_name + "||" + scaffold.scaffold_id,
                 config=GenerateConfig(),  # Example config
-                system=system,
+                scaffold=scaffold,
                 temp_file=temp_file,
-                agent_system=AgentSystem,
+                agent_scaffold=AgentScaffold,
             )
 
             models.append(CustomModel(api=custom_api, config=GenerateConfig()))
@@ -121,7 +121,7 @@ class Benchmark(ABC):
             tasks,
             model=models,
             limit=limit,
-            log_dir=f"./src/{log_d}/{self.split}/{self.args.log_timestamp}/{self.__class__.__name__}-{str(systems[0].population_id)}/logs",  # specify where logs are stored
+            log_dir=f"./src/{log_d}/{self.split}/{self.args.log_timestamp}/{self.__class__.__name__}-{str(scaffolds[0].population_id)}/logs",  # specify where logs are stored
             log_format="json",  # choose log format ("eval" or "json")
             score=True,  # ensure scoring is enable
             max_tasks=500,
@@ -184,21 +184,21 @@ class Benchmark(ABC):
         pass
 
     @staticmethod
-    def get_callable(system_id, system_name, system_code) -> tuple:
+    def get_callable(scaffold_id, scaffold_name, scaffold_code) -> tuple:
 
         try:
-            forward_function = system_code
-            # Create the agent system in temporary code
+            forward_function = scaffold_code
+            # Create the agent scaffold in temporary code
             current_directory = os.path.dirname(os.path.abspath(__file__))
             parent_directory = os.path.dirname(current_directory)
-            cleaned_name = re.sub(r"[^A-Za-z0-9 ]+", "", system_name)
+            cleaned_name = re.sub(r"[^A-Za-z0-9 ]+", "", scaffold_name)
             temp_file = (
-                f"""{parent_directory}/temp/agent_system_temp_"""
+                f"""{parent_directory}/temp/agent_scaffold_temp_"""
                 + f"""
-                {cleaned_name}_{system_id}_{uuid.uuid4()}.py""".strip()
+                {cleaned_name}_{scaffold_id}_{uuid.uuid4()}.py""".strip()
             )
 
-            # Write the complete AgentSystem class to the file, including the forward function
+            # Write the complete AgentScaffold class to the file, including the forward function
             with open(temp_file, "w") as f:
                 f.write("import random\n")
                 f.write("import pandas\n")
@@ -206,11 +206,11 @@ class Benchmark(ABC):
                 f.write("import asyncio\n\n")
                 f.write(f"from base import Agent, Meeting, Chat\n\n")
                 f.write(f"from adas.base import LLMAgentBase, Info\n\n")
-                f.write("class AgentSystem:\n")
+                f.write("class AgentScaffold:\n")
                 f.write("    " + forward_function.replace("\n", "\n    "))
                 f.write("\n\n")
                 f.write("if __name__ == '__main__':\n")
-                f.write("    " + "agent_system = AgentSystem()\n")
+                f.write("    " + "agent_scaffold = AgentScaffold()\n")
                 f.write(
                     "    "
                     + """task = "What should I have for dinner?"""
@@ -219,23 +219,23 @@ class Benchmark(ABC):
                 )
                 f.write(
                     "    "
-                    + "output = asyncio.run(agent_system.forward(task, required_answer_format))\n"
+                    + "output = asyncio.run(agent_scaffold.forward(task, required_answer_format))\n"
                 )
                 f.write("    " + "print(output)\n")
 
-            # Import the AgentSystem class from the temp file
+            # Import the AgentScaffold class from the temp file
             spec = importlib.util.spec_from_file_location(
-                "agent_system_temp", temp_file
+                "agent_scaffold_temp", temp_file
             )
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
-            AgentSystem = module.AgentSystem
+            AgentScaffold = module.AgentScaffold
 
         except Exception as e:
             print("Error during evaluation:", e)
             return None, temp_file
 
-        return AgentSystem, temp_file
+        return AgentScaffold, temp_file
 
     @solver
     def match_solver(self) -> Solver:

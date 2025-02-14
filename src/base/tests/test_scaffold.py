@@ -4,10 +4,10 @@ sys.path.append("src")
 
 import unittest
 from datetime import datetime
-from system import Meeting, Agent, Chat
+from base.scaffold import Meeting, Agent, Chat
 
 
-class TestAgentBreederSystem(unittest.TestCase):
+class TestAgentBreederScaffold(unittest.TestCase):
 
     def test_meeting_initialization(self):
         meeting_name = "Test Meeting"

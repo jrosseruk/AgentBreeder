@@ -7,7 +7,7 @@ sys.path.append("src/adas")
 from adas.base import LLMAgentBase, Info
 
 
-class DROPAgentSystem:
+class DROPAgentScaffold:
     def __init__(self) -> None:
         pass
 
@@ -70,9 +70,9 @@ class DROPAgentSystem:
 
 
 if __name__ == "__main__":
-    DROPAgentSystem = DROPAgentSystem()
+    DROPAgentScaffold = DROPAgentScaffold()
     # Set a timeout of 3 minutes (180 seconds)
     input = "What is the capital of france?"
-    output = asyncio.run(DROPAgentSystem.forward(input))
+    output = asyncio.run(DROPAgentScaffold.forward(input))
     output = str(output)
     print(output)

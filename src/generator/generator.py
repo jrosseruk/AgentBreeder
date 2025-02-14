@@ -1,6 +1,6 @@
 import random
 from base import (
-    System,
+    Scaffold,
     Population,
     initialize_session,
 )
@@ -10,8 +10,8 @@ from base import (
 from descriptor import Descriptor
 from evals import Validator
 from prompts.mutation_prompts import (
-    multi_agent_system_mutation_prompts,
-    multi_agent_system_safety_mutation_prompts,
+    multi_agent_scaffold_mutation_prompts,
+    multi_agent_scaffold_safety_mutation_prompts,
 )
 from icecream import ic
 from .mutator import Mutator
@@ -40,11 +40,11 @@ class Generator:
         self.debug_sample = debug_sample
         self.population = population
 
-        self.mutation_operators = multi_agent_system_mutation_prompts
+        self.mutation_operators = multi_agent_scaffold_mutation_prompts
         if self.args.mode in ["blue"]:
             self.mutation_operators = (
-                multi_agent_system_mutation_prompts
-                + multi_agent_system_safety_mutation_prompts
+                multi_agent_scaffold_mutation_prompts
+                + multi_agent_scaffold_safety_mutation_prompts
             )
         self.batch_size = 1
         self.descriptor = Descriptor()
@@ -68,13 +68,13 @@ class Generator:
                 self.debug_sample,
             )
             # Create a new Generator instance per task
-            mutant_system = await mutator.mutate(parents)
+            mutant_scaffold = await mutator.mutate(parents)
 
         except Exception as e:
             logging.error(f"Error generating mutant: {e}")
-            mutant_system = None
+            mutant_scaffold = None
 
-        return mutant_system
+        return mutant_scaffold
 
     async def run_generation(self, session):
 
@@ -84,15 +84,15 @@ class Generator:
 
             if self.args.mode in ["blue", "red"]:
 
-                system_1 = random.choice(self.population.pareto_elites).to_dict()
-                system_2 = random.choice(self.population.pareto_elites).to_dict()
+                scaffold_1 = random.choice(self.population.pareto_elites).to_dict()
+                scaffold_2 = random.choice(self.population.pareto_elites).to_dict()
 
             elif self.args.mode in ["ablation"]:
 
-                system_1 = random.choice(self.population.elites).to_dict()
-                system_2 = random.choice(self.population.elites).to_dict()
+                scaffold_1 = random.choice(self.population.elites).to_dict()
+                scaffold_2 = random.choice(self.population.elites).to_dict()
 
-            parents.append((system_1, system_2))
+            parents.append((scaffold_1, scaffold_2))
 
         self.base_prompt, self.base_prompt_response_format = (
             get_base_prompt_with_archive(self.args, session)
@@ -116,21 +116,21 @@ class Generator:
                 pbar.update(1)  # Update the bar once a task finishes
         # print(results)
 
-        for system in results:
-            if system and system["system_code"]:
+        for scaffold in results:
+            if scaffold and scaffold["scaffold_code"]:
 
-                system = System(
+                scaffold = Scaffold(
                     session=session,
-                    system_name=system["system_name"],
-                    system_code=system["system_code"],
-                    system_thought_process=system["system_thought_process"],
-                    system_first_parent_id=system["system_first_parent_id"],
-                    system_second_parent_id=system["system_second_parent_id"],
+                    scaffold_name=scaffold["scaffold_name"],
+                    scaffold_code=scaffold["scaffold_code"],
+                    scaffold_thought_process=scaffold["scaffold_thought_process"],
+                    scaffold_first_parent_id=scaffold["scaffold_first_parent_id"],
+                    scaffold_second_parent_id=scaffold["scaffold_second_parent_id"],
                     population=self.population,
                     generation_timestamp=generation_timestamp,
                 )
-                self.population.systems.append(system)
+                self.population.scaffolds.append(scaffold)
 
-                system.update(system_descriptor=self.descriptor.generate(system))
+                scaffold.update(scaffold_descriptor=self.descriptor.generate(scaffold))
 
         return results

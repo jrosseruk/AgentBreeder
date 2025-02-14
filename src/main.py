@@ -5,7 +5,7 @@ import logging
 from tqdm import tqdm
 from generator import initialize_population_id, Generator
 from descriptor import Clusterer
-from base import initialize_session, Population, System
+from base import initialize_session, Population, Scaffold
 from evals import Validator
 import os
 import uuid
@@ -51,14 +51,14 @@ def main(args, population_id=None):
             clusterer.cluster(population)
             # assert 1 == 2
 
-            # Only choose systems which haven't been validated yet (e.g. system_fitness=None)
-            systems_for_validation = (
-                session.query(System)
-                .filter_by(population_id=population_id, system_fitness=None)
-                .order_by(System.system_timestamp.desc())
+            # Only choose scaffolds which haven't been validated yet (e.g. scaffold_fitness=None)
+            scaffolds_for_validation = (
+                session.query(Scaffold)
+                .filter_by(population_id=population_id, scaffold_fitness=None)
+                .order_by(Scaffold.scaffold_timestamp.desc())
                 .all()[:10]
             )
-            validator.validate(systems_for_validation)
+            validator.validate(scaffolds_for_validation)
 
             print(f"Reloaded population ID: {population.population_id}")
 
@@ -79,15 +79,15 @@ def main(args, population_id=None):
             # Recluster the population
             clusterer.cluster(population)
 
-            # Only choose systems which haven't been validated yet (e.g. system_fitness=None)
-            systems_for_validation = (
-                session.query(System)
-                .filter_by(population_id=population_id, system_fitness=None)
+            # Only choose scaffolds which haven't been validated yet (e.g. scaffold_fitness=None)
+            scaffolds_for_validation = (
+                session.query(Scaffold)
+                .filter_by(population_id=population_id, scaffold_fitness=None)
                 .all()
             )
 
             validator = Validator(args)
-            validator.validate(systems_for_validation)
+            validator.validate(scaffolds_for_validation)
 
             session.commit()
 

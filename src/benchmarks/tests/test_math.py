@@ -2,7 +2,7 @@ import sys
 
 sys.path.append("src")
 import random
-from base import System
+from base import Scaffold
 import unittest
 from benchmarks.math_ import Math
 from inspect_ai.dataset import Sample
@@ -19,10 +19,10 @@ import asyncio
 class TestMath(unittest.TestCase):
 
     def setUp(self):
-        self.system = System(
-            system_name="clrs_text_test_system",
-            system_id="test_id",
-            system_code=dedent(
+        self.scaffold = Scaffold(
+            scaffold_name="clrs_text_test_scaffold",
+            scaffold_id="test_id",
+            scaffold_code=dedent(
                 """
             async def forward(self, task, required_answer_format):
                 return "A"

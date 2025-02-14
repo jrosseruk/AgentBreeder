@@ -2,7 +2,7 @@ import sys
 
 sys.path.append("src")
 
-from base import System
+from base import Scaffold
 import unittest
 from benchmarks.drop import DROP, drop_metric
 from inspect_ai.dataset import Sample
@@ -19,10 +19,10 @@ import asyncio
 class TestDROP(unittest.TestCase):
 
     def setUp(self):
-        self.system = System(
-            system_name="clrs_text_test_system",
-            system_id="test_id",
-            system_code=dedent(
+        self.scaffold = Scaffold(
+            scaffold_name="clrs_text_test_scaffold",
+            scaffold_id="test_id",
+            scaffold_code=dedent(
                 """
             async def forward(self, task, required_answer_format):
                 return "A"

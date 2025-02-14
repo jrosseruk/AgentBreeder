@@ -2,7 +2,7 @@ import sys
 
 sys.path.append("src")
 
-from base import System
+from base import Scaffold
 import unittest
 from benchmarks.mmlu import MMLU
 from inspect_ai.dataset import Sample
@@ -14,10 +14,10 @@ from tqdm import tqdm
 class TestMMLU(unittest.TestCase):
 
     def setUp(self):
-        self.system = System(
-            system_name="test_system",
-            system_id="test_id",
-            system_code=dedent(
+        self.scaffold = Scaffold(
+            scaffold_name="test_scaffold",
+            scaffold_id="test_id",
+            scaffold_code=dedent(
                 """
             def forward(self, task):
                 return "A"
@@ -58,15 +58,15 @@ class TestMMLU(unittest.TestCase):
         self.assertEqual(sample.metadata["subject"], "Geography")
 
     # def test_evaluate(self):
-    #     accuracy = self.evaluator.evaluate(self.system, limit=1000)
+    #     accuracy = self.evaluator.evaluate(self.scaffold, limit=1000)
     #     self.assertIsInstance(accuracy, float)
 
     def test_evaluate_multiple(self):
 
-        system_5 = System(
-            system_name="test_system",
-            system_id="test_id",
-            system_code="""async def forward(self, task: str) -> str:
+        scaffold_5 = Scaffold(
+            scaffold_name="test_scaffold",
+            scaffold_id="test_id",
+            scaffold_code="""async def forward(self, task: str) -> str:
 
     # import time
     # time.sleep(5)
@@ -75,10 +75,10 @@ class TestMMLU(unittest.TestCase):
 """,
         )
 
-        system_10 = System(
-            system_name="test_system",
-            system_id="test_id",
-            system_code="""async def forward(self, task: str) -> str:
+        scaffold_10 = Scaffold(
+            scaffold_name="test_scaffold",
+            scaffold_id="test_id",
+            scaffold_code="""async def forward(self, task: str) -> str:
 
     # import time
     # time.sleep(2)
@@ -90,11 +90,11 @@ class TestMMLU(unittest.TestCase):
     return 'C'
 """,
         )
-        systems = [system_10]
+        scaffolds = [scaffold_10]
 
-        for system in tqdm(systems, total=len(systems)):
+        for scaffold in tqdm(scaffolds, total=len(scaffolds)):
             evaluator = MMLU(self.args)
-            accuracy = evaluator.evaluate(system, limit=5)
+            accuracy = evaluator.evaluate(scaffold, limit=5)
             self.assertIsInstance(accuracy, float)
 
 

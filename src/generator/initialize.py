@@ -1,6 +1,6 @@
 import random
 from base import (
-    System,
+    Scaffold,
     Population,
     initialize_session,
 )
@@ -28,7 +28,7 @@ import copy
 
 def initialize_population_id(args) -> str:
     """
-    Initializes the first generation of systems for a given population.
+    Initializes the first generation of scaffolds for a given population.
 
     Args:
         args: Arguments object containing configurations for the population initialization.
@@ -56,29 +56,29 @@ def initialize_population_id(args) -> str:
 
         generation_timestamp = datetime.datetime.utcnow()
 
-        for system in archive:
-            system = System(
+        for scaffold in archive:
+            scaffold = Scaffold(
                 session=session,
-                system_name=system["name"],
-                system_code=system["code"],
-                system_thought_process=system["thought"],
+                scaffold_name=scaffold["name"],
+                scaffold_code=scaffold["code"],
+                scaffold_thought_process=scaffold["thought"],
                 population=population,
                 generation_timestamp=generation_timestamp,
             )
-            population.systems.append(system)
+            population.scaffolds.append(scaffold)
 
-        for system in population.systems:
-            system.update(system_descriptor=descriptor.generate(system))
+        for scaffold in population.scaffolds:
+            scaffold.update(scaffold_descriptor=descriptor.generate(scaffold))
 
         population_id = str(population.population_id)
 
-        systems_for_validation = (
-            session.query(System)
-            .filter_by(population_id=population_id, system_fitness=None)
+        scaffolds_for_validation = (
+            session.query(Scaffold)
+            .filter_by(population_id=population_id, scaffold_fitness=None)
             .all()
         )
 
-        validator.validate(systems_for_validation)
+        validator.validate(scaffolds_for_validation)
 
         # Re-load the population object in this session
         population = (

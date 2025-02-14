@@ -6,7 +6,7 @@ import logging
 from tqdm import tqdm
 from generator import initialize_population_id, Generator
 from descriptor import Clusterer
-from base import initialize_session, Population, System
+from base import initialize_session, Population, Scaffold
 from evals import Validator
 import os
 import uuid
@@ -24,7 +24,7 @@ logging.getLogger("httpx").disabled = True
 # Suppress all SAWarnings
 warnings.filterwarnings("ignore", category=SAWarning)
 from base import (
-    System,
+    Scaffold,
     Population,
     initialize_session,
 )
@@ -56,7 +56,7 @@ import time
 
 def initialize_population_id(args) -> str:
     """
-    Initializes the first generation of systems for a given population.
+    Initializes the first generation of scaffolds for a given population.
 
     Args:
         args: Arguments object containing configurations for the population initialization.
@@ -81,19 +81,19 @@ def initialize_population_id(args) -> str:
         validator = Validator(args)
 
         generation_timestamp = datetime.datetime.utcnow()
-        systems_for_validation = []
-        for system in archive:
-            system = System(
+        scaffolds_for_validation = []
+        for scaffold in archive:
+            scaffold = Scaffold(
                 session=session,
-                system_name=system["name"],
-                system_code=system["code"],
-                system_thought_process=system["thought"],
+                scaffold_name=scaffold["name"],
+                scaffold_code=scaffold["code"],
+                scaffold_thought_process=scaffold["thought"],
                 population=population,
                 generation_timestamp=generation_timestamp,
             )
-            systems_for_validation.append(system)
+            scaffolds_for_validation.append(scaffold)
 
-        validator.validate(systems_for_validation, log_d="baselines")
+        validator.validate(scaffolds_for_validation, log_d="baselines")
 
         # create a json file
 

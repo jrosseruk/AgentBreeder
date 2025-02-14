@@ -1,13 +1,13 @@
 import random
 import pandas as pd
 from typing import List
-from base import System
+from base import Scaffold
 from chat import get_structured_json_response_from_gpt
 from prompts.meta_agent_base import get_base_prompt_with_archive
 from prompts.meta_agent_reflexion import Reflexion_prompt_1
 import os
 import uuid
-from evals import AgentSystemException
+from evals import AgentScaffoldException
 import logging
 import json
 import re
@@ -33,9 +33,9 @@ class Mutator:
             args: Arguments object containing configurations for the mutator, such
             as debugging limits and model settings.
 
-            population: The population of systems for mutation.
+            population: The population of scaffolds for mutation.
             mutation_operators: A list of mutation operator strings to apply.
-            evaluator: An evaluator object for validating and testing mutated systems.
+            evaluator: An evaluator object for validating and testing mutated scaffolds.
         """
 
         self.mutation_operators = mutation_operators
@@ -52,55 +52,55 @@ class Mutator:
 
     async def mutate(self, parents: list[dict]) -> dict:
         """
-        Applies a mutation to a given system.
+        Applies a mutation to a given scaffold.
 
         Args:
-            system (System): The system object to mutate.
+            scaffold (Scaffold): The scaffold object to mutate.
 
         Returns:
-            System: The mutated system object. Returns None if the mutation fails.
+            Scaffold: The mutated scaffold object. Returns None if the mutation fails.
         """
 
-        mutated_system = None
-        system_response = {"code": None}
+        mutated_scaffold = None
+        scaffold_response = {"code": None}
         i = 0
-        while (not mutated_system or not system_response.get("code")) and i < 3:
+        while (not mutated_scaffold or not scaffold_response.get("code")) and i < 3:
             i += 1
             try:
                 (
-                    system_response,
+                    scaffold_response,
                     messages,
                     reflexion_response_format,
-                    parent_system_ids,
+                    parent_scaffold_ids,
                     sampled_mutation,
                 ) = await random.choice([self._mutate, self._mutate, self._crossover])(
                     parents
                 )
 
-                system_response = await self._debug(
-                    messages, system_response, reflexion_response_format
+                scaffold_response = await self._debug(
+                    messages, scaffold_response, reflexion_response_format
                 )
 
-                mutated_system = {
-                    "system_name": system_response["name"],
-                    "system_code": system_response["code"],
-                    "system_first_parent_id": str(parent_system_ids[0]),
-                    "system_second_parent_id": str(parent_system_ids[1]),
-                    "system_thought_process": system_response["thought"],
-                    "system_mutation_prompt": (
+                mutated_scaffold = {
+                    "scaffold_name": scaffold_response["name"],
+                    "scaffold_code": scaffold_response["code"],
+                    "scaffold_first_parent_id": str(parent_scaffold_ids[0]),
+                    "scaffold_second_parent_id": str(parent_scaffold_ids[1]),
+                    "scaffold_thought_process": scaffold_response["thought"],
+                    "scaffold_mutation_prompt": (
                         sampled_mutation if sampled_mutation else ""
                     ),
                 }
             except Exception as e:
 
-                print(f"Error evolving system: {e}")
-                mutated_system = None
+                print(f"Error evolving scaffold: {e}")
+                mutated_scaffold = None
 
-        return mutated_system
+        return mutated_scaffold
 
     async def _mutate(self, parents: list[dict]):
         """
-        Applies a sampled mutation to a system and refines it using reflexion-based prompts.
+        Applies a sampled mutation to a scaffold and refines it using reflexion-based prompts.
 
         Args:
             None
@@ -109,9 +109,9 @@ class Mutator:
             tuple: A tuple containing the next_response (dict), the updated messages (list),
                 and the reflexion_response_format (str).
         """
-        system = parents[0]
-        logging.info(f"Mutating {system.get('system_name')} system...")
-        print(f"Mutating {system.get('system_name')} system...")
+        scaffold = parents[0]
+        logging.info(f"Mutating {scaffold.get('scaffold_name')} scaffold...")
+        print(f"Mutating {scaffold.get('scaffold_name')} scaffold...")
 
         sampled_mutation = random.choice(self.mutation_operators)
 
@@ -125,22 +125,22 @@ class Mutator:
                 "content": f"""
                 {self.base_prompt}
              
-                Here is the multi-agent system I would like you to mutate:
+                Here is the multi-agent scaffold I would like you to mutate:
 
                 ---------------
-                System: {system.get('system_name')}
-                {system.get("system_thought_process")}
+                Scaffold: {scaffold.get('scaffold_name')}
+                {scaffold.get("scaffold_thought_process")}
                 ---------------
-                {system.get("system_code")}
+                {scaffold.get("scaffold_code")}
 
                 The mutation I would like to apply is:
                 {sampled_mutation}
 
                 
                 IMPORTANT:
-                In general, the new system will perform better with more detailed prompts for the agents, more planning steps,
-                encouringing them to think longer and harder. It may be worth adding a final agent to the system to help
-                transform the output of the final agent into the desired output format for the task as the system will be scored
+                In general, the new scaffold will perform better with more detailed prompts for the agents, more planning steps,
+                encouringing them to think longer and harder. It may be worth adding a final agent to the scaffold to help
+                transform the output of the final agent into the desired output format for the task as the scaffold will be scored
                 very lowley if the output is not in the correct format, even if the thinking was sound.
 
                 Ensure that the new forward functions outputs a response as a
@@ -153,12 +153,12 @@ class Mutator:
         ]
 
         return await self._evolve(
-            messages, [parents[0].get("system_id"), None], sampled_mutation
+            messages, [parents[0].get("scaffold_id"), None], sampled_mutation
         )
 
     async def _crossover(self, parents: list[dict]):
         """
-        Applies crossover to two systems and refines the result using reflexion-based prompts.
+        Applies crossover to two scaffolds and refines the result using reflexion-based prompts.
 
         Args:
             None
@@ -167,13 +167,13 @@ class Mutator:
             tuple: A tuple containing the next_response (dict), the updated messages (list),
                 and the reflexion_response_format (str).
         """
-        system_1 = parents[0]
-        system_2 = parents[1]
+        scaffold_1 = parents[0]
+        scaffold_2 = parents[1]
         logging.info(
-            f"Crossing over {system_1.get('system_name')} and {system_2.get('system_name')} systems..."
+            f"Crossing over {scaffold_1.get('scaffold_name')} and {scaffold_2.get('scaffold_name')} scaffolds..."
         )
         print(
-            f"Crossing over {system_1.get('system_name')} and {system_2.get('system_name')} systems..."
+            f"Crossing over {scaffold_1.get('scaffold_name')} and {scaffold_2.get('scaffold_name')} scaffolds..."
         )
 
         messages = [
@@ -186,19 +186,19 @@ class Mutator:
                 "content": f"""
                 {self.base_prompt}
              
-                Here are the two systems I'd like you to crossover/combine into a novel new system:
+                Here are the two scaffolds I'd like you to crossover/combine into a novel new scaffold:
 
                 ---------------
-                System 1: {system_1.get('system_name')}
-                {system_1.get("system_thought_process")}
+                Scaffold 1: {scaffold_1.get('scaffold_name')}
+                {scaffold_1.get("scaffold_thought_process")}
                 ---------------
-                {system_1.get("system_code")}
+                {scaffold_1.get("scaffold_code")}
 
                 ---------------
-                System 2: {system_2.get('system_name')}
-                {system_2.get("system_thought_process")}
+                Scaffold 2: {scaffold_2.get('scaffold_name')}
+                {scaffold_2.get("scaffold_thought_process")}
                 ---------------
-                {system_2.get("system_code")}   
+                {scaffold_2.get("scaffold_code")}   
 
                 Ensure that the new forward functions outputs a response as a
                 STRING in the exact format as specified in the required_answer_format. This could be
@@ -209,12 +209,14 @@ class Mutator:
         ]
 
         return await self._evolve(
-            messages, [parents[0].get("system_id"), parents[1].get("system_id")], None
+            messages,
+            [parents[0].get("scaffold_id"), parents[1].get("scaffold_id")],
+            None,
         )
 
     async def _base(self, parents: list[dict]):
         """
-        Applies a sampled mutation to a system and refines it using reflexion-based prompts.
+        Applies a sampled mutation to a scaffold and refines it using reflexion-based prompts.
 
         Args:
             None
@@ -223,9 +225,9 @@ class Mutator:
             tuple: A tuple containing the next_response (dict), the updated messages (list),
                 and the reflexion_response_format (str).
         """
-        system = parents[0]
-        logging.info(f"Mutating {system.get('system_name')} system...")
-        print(f"Mutating {system.get('system_name')} system...")
+        scaffold = parents[0]
+        logging.info(f"Mutating {scaffold.get('scaffold_name')} scaffold...")
+        print(f"Mutating {scaffold.get('scaffold_name')} scaffold...")
 
         sampled_mutation = random.choice(self.mutation_operators)
 
@@ -239,7 +241,7 @@ class Mutator:
                 "content": f"""
                 {self.base_prompt}
 
-                Please generate a new multi-agent system from scratch. Use the multi-agent structure
+                Please generate a new multi-agent scaffold from scratch. Use the multi-agent structure
                 provided e.g. Agents, Meetings and Chats, and ensuring agents each have their own
                 internal monologue where they are told their role and goals. Please do not copy the
                 previous architectures but come up with something new and interesting that would 
@@ -254,9 +256,9 @@ class Mutator:
             },
         ]
 
-        return await self._evolve(messages, [parents[0].get("system_id"), None], None)
+        return await self._evolve(messages, [parents[0].get("scaffold_id"), None], None)
 
-    async def _evolve(self, messages, parent_system_ids, sampled_mutation):
+    async def _evolve(self, messages, parent_scaffold_ids, sampled_mutation):
 
         # Generate new solution and do reflection
         try:
@@ -305,7 +307,7 @@ class Mutator:
 
             return None
 
-        # Clean up the system to only allow numbers, letters, hyphens and underscores
+        # Clean up the scaffold to only allow numbers, letters, hyphens and underscores
         next_response["name"] = re.sub(
             r"[^A-Za-z0-9 \-\u2013\u2014]+", "", next_response["name"]
         )
@@ -314,7 +316,7 @@ class Mutator:
             next_response,
             messages,
             reflexion_response_format,
-            parent_system_ids,
+            parent_scaffold_ids,
             sampled_mutation,
         )
 
@@ -357,14 +359,14 @@ class Mutator:
 
         Args:
             messages: List of messages exchanged during the mutation process.
-            next_response: The generated response containing the multi-agent system code and metadata.
+            next_response: The generated response containing the multi-agent scaffold code and metadata.
             reflexion_response_format: The response format for reflection.
 
         Returns:
             dict: The updated next_response after debugging attempts.
         """
 
-        agent_system, temp_file = Benchmark.get_callable(
+        agent_scaffold, temp_file = Benchmark.get_callable(
             str(uuid.uuid4()), next_response["name"], next_response["code"]
         )
 
@@ -373,14 +375,14 @@ class Mutator:
             try:
 
                 if "return self.forward" in next_response["code"]:
-                    raise AgentSystemException(
+                    raise AgentScaffoldException(
                         """The output of the forward function must not be the forward function
                         itself, as it will recurse infinitely."""
                     )
 
                 if "return await self.forward" in next_response["code"]:
                     raise Exception("Infinite loop detected")
-                agentSystem = agent_system()
+                agentScaffold = agent_scaffold()
                 # Set a timeout of 3 minutes (180 seconds)
                 try:
                     print(self.debug_sample)
@@ -390,24 +392,24 @@ class Mutator:
                     print("Input", input)
                     print("Format", format)
                     output = await asyncio.wait_for(
-                        agentSystem.forward(input, format), timeout=720
+                        agentScaffold.forward(input, format), timeout=720
                     )
                 except asyncio.TimeoutError:
                     next_response["code"] = None
                     break
-                    # raise AgentSystemException(
+                    # raise AgentScaffoldException(
                     #     """The forward function took too long to execute. Make sure your code
                     #     is efficient and doesn't have any infinite loops."""
                     # )
                 except Exception as e:
-                    raise AgentSystemException(e)
+                    raise AgentScaffoldException(e)
 
                 if output.lower().startswith("error"):
-                    raise AgentSystemException(output)
+                    raise AgentScaffoldException(output)
                 print("Debug successful")
                 break
 
-            except AgentSystemException as e:
+            except AgentScaffoldException as e:
                 logging.info(f"Debugging meta agent's code: {e}")
                 messages.append({"role": "assistant", "content": str(next_response)})
                 messages.append(

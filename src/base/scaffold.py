@@ -1,10 +1,8 @@
-from typing import List, Optional
 from datetime import datetime
 import uuid
 import random
 import string
 from chat import get_structured_json_response_from_gpt
-import json
 
 
 class Meeting:
@@ -75,11 +73,6 @@ class Agent:
 
         history = initial_message + [to_chat(chat) for chat in chats]
 
-        # print(f"-----{self.agent_name}")
-        # for chat in history:
-        #     print(json.dumps(chat, indent=4))
-
-        # print("---------------")
         return history
 
     async def forward(self, response_format: dict):

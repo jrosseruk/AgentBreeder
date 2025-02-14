@@ -1,19 +1,7 @@
-import openai
-import numpy as np
-
-
 import numpy as np
 from sqlalchemy.orm import object_session
 from sklearn.cluster import AgglomerativeClustering
-
 from base import Cluster, Generation
-
-
-from sqlalchemy.orm import object_session
-
-from dotenv import load_dotenv
-
-load_dotenv(override=True)
 
 
 class Clusterer:
@@ -29,36 +17,26 @@ class Clusterer:
             linkage (str): Which linkage criterion to use ('ward', 'complete', 'average', 'single').
         """
 
-        # Note: 'ward' only works with 'euclidean'. If you need another metric, change linkage accordingly.
-        # For example, if you want to use 'manhattan', you cannot use 'ward'; you might use 'complete' or 'average'.
-
         self.n_clusters = n_clusters
         self.metric = metric
         self.linkage = linkage
 
-        # If you want to use a distance threshold instead of a fixed number of clusters, you can do:
-        #
         self.clusterer = AgglomerativeClustering(
             n_clusters=None,
             distance_threshold=0.7,  # example threshold
             # affinity=self.metric,
             linkage=self.linkage,
         )
-        #
-        # # But for simplicity, we'll assume a fixed n_clusters or None with no threshold:
-        # self.clusterer = AgglomerativeClustering(
-        #     n_clusters=self.n_clusters, affinity=self.metric, linkage=self.linkage
-        # )
 
     def cluster(self, population):
         """
-        Clusters systems in a population based on their embeddings using pure hierarchical clustering.
+        Clusters scaffolds in a population based on their embeddings using pure hierarchical clustering.
 
         Args:
-            population (Population): The population object containing systems to cluster.
+            population (Population): The population object containing scaffolds to cluster.
 
         Returns:
-            np.ndarray: An array of cluster labels for the multi-agent systems in the population.
+            np.ndarray: An array of cluster labels for the multi-agent scaffolds in the population.
         """
 
         session = object_session(population)
@@ -66,14 +44,14 @@ class Clusterer:
         # Create a new generation
         generation = Generation(session=session, population_id=population.population_id)
 
-        # Extract embeddings from population systems
-        embeddings = [system.system_descriptor for system in population.systems]
+        # Extract embeddings from population scaffolds
+        embeddings = [scaffold.scaffold_descriptor for scaffold in population.scaffolds]
 
         # Make sure each embedding has the same shape; replace mismatches with zeros
-        mode_system_shape = np.shape(embeddings[0])[0]
+        mode_scaffold_shape = np.shape(embeddings[0])[0]
         for i, descriptor in enumerate(embeddings):
-            if not descriptor or len(descriptor) != mode_system_shape:
-                embeddings[i] = np.zeros((int(mode_system_shape),))
+            if not descriptor or len(descriptor) != mode_scaffold_shape:
+                embeddings[i] = np.zeros((int(mode_scaffold_shape),))
 
         # Convert to numpy array
         embeddings = np.array(embeddings, dtype=np.float32)
@@ -87,15 +65,15 @@ class Clusterer:
 
         # Example: if you want to handle small populations differently
         if len(embeddings) < 10:
-            # Put each system in its own cluster
-            for system in population.systems:
+            # Put each scaffold in its own cluster
+            for scaffold in population.scaffolds:
                 cluster = Cluster(
                     session=session,
                     generation_id=generation.generation_id,
                     population_id=population.population_id,
                 )
                 population.clusters.append(cluster)
-                system.update(cluster_id=cluster.cluster_id)
+                scaffold.update(cluster_id=cluster.cluster_id)
 
         else:
             # Create one Cluster object per unique label
@@ -107,9 +85,9 @@ class Clusterer:
                 )
                 population.clusters.append(cluster)
 
-                # Assign systems with the current label to this cluster
-                for i, system in enumerate(population.systems):
+                # Assign scaffolds with the current label to this cluster
+                for i, scaffold in enumerate(population.scaffolds):
                     if labels[i] == label:
-                        system.update(cluster_id=cluster.cluster_id)
+                        scaffold.update(cluster_id=cluster.cluster_id)
 
         return labels

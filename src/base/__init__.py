@@ -1,6 +1,6 @@
 from .session import (
     Chat,
-    System,
+    Scaffold,
     Cluster,
     Generation,
     Population,

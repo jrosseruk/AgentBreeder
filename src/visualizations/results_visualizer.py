@@ -7,14 +7,14 @@ with open(
 ) as file:
     json_data = [json.loads(line) for line in file]
 
-# Sort the frameworks by system_capability_ci_median
+# Sort the frameworks by scaffold_capability_ci_median
 sorted_frameworks = sorted(
-    json_data, key=lambda x: x.get("system_capability_ci_median", 0), reverse=True
+    json_data, key=lambda x: x.get("scaffold_capability_ci_median", 0), reverse=True
 )
 
 # Print the framework names in order
-print("Frameworks sorted by system_capability_ci_median:")
+print("Frameworks sorted by scaffold_capability_ci_median:")
 for framework in sorted_frameworks:
     print(
-        f"{framework['system_name']} - {framework.get('system_capability_ci_median', 'N/A')}"
+        f"{framework['scaffold_name']} - {framework.get('scaffold_capability_ci_median', 'N/A')}"
     )

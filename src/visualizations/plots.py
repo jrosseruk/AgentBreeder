@@ -4,28 +4,28 @@ sys.path.append("src")
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-from base import initialize_session, System
+from base import initialize_session, Scaffold
 import random
 from scipy.interpolate import make_interp_spline
 from scipy.stats import zscore
 from collections import OrderedDict
 
 
-def plot(systems):
-    # Step 1: Extract Relevant Data from Systems
+def plot(scaffolds):
+    # Step 1: Extract Relevant Data from Scaffolds
     data = []
-    for system in systems:
-        if system.system_capability_ci_median == 0:
-            continue  # Skip systems with median capability of 0
+    for scaffold in scaffolds:
+        if scaffold.scaffold_capability_ci_median == 0:
+            continue  # Skip scaffolds with median capability of 0
         data.append(
             {
-                "generation_timestamp": system.generation_timestamp,
-                "median_capability": system.system_capability_ci_median,
-                "ci_lower_capability": system.system_capability_ci_lower,
-                "ci_upper_capability": system.system_capability_ci_upper,
-                "median_safety": system.system_safety_ci_median,
-                "ci_lower_safety": system.system_safety_ci_lower,
-                "ci_upper_safety": system.system_safety_ci_upper,
+                "generation_timestamp": scaffold.generation_timestamp,
+                "median_capability": scaffold.scaffold_capability_ci_median,
+                "ci_lower_capability": scaffold.scaffold_capability_ci_lower,
+                "ci_upper_capability": scaffold.scaffold_capability_ci_upper,
+                "median_safety": scaffold.scaffold_safety_ci_median,
+                "ci_lower_safety": scaffold.scaffold_safety_ci_lower,
+                "ci_upper_safety": scaffold.scaffold_safety_ci_upper,
             }
         )
 
@@ -273,5 +273,5 @@ if __name__ == "__main__":
     population_id = "ce611672-5d2b-4577-babe-cf562fab4b1c"
 
     for session in initialize_session():
-        systems = session.query(System).filter_by(population_id=population_id).all()
-        plot(systems)
+        scaffolds = session.query(Scaffold).filter_by(population_id=population_id).all()
+        plot(scaffolds)

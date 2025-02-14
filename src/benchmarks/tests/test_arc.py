@@ -2,7 +2,7 @@ import sys
 
 sys.path.append("src")
 
-from base import System
+from base import Scaffold
 import unittest
 from benchmarks.arc import ARC
 from inspect_ai.dataset import Sample
@@ -19,10 +19,10 @@ import asyncio
 class TestARC(unittest.TestCase):
 
     def setUp(self):
-        self.system = System(
-            system_name="arc_test_system",
-            system_id="test_id",
-            system_code=dedent(
+        self.scaffold = Scaffold(
+            scaffold_name="arc_test_scaffold",
+            scaffold_id="test_id",
+            scaffold_code=dedent(
                 """
             async def forward(self, task, required_answer_format):
                 return "A"
@@ -137,24 +137,24 @@ class TestARC(unittest.TestCase):
     #     sample = self.evaluator._record_to_sample(record)
     #     print(sample)
 
-    # def test_evaluate_system(self):
-    #     system = System(
-    #         system_name="arc_test_system",
-    #         system_id=str(uuid.uuid4()),
-    #         system_code=COT_SC["code"],
+    # def test_evaluate_scaffold(self):
+    #     scaffold = Scaffold(
+    #         scaffold_name="arc_test_scaffold",
+    #         scaffold_id=str(uuid.uuid4()),
+    #         scaffold_code=COT_SC["code"],
     #     )
 
-    #     accuracy = self.evaluator.evaluate(system, limit=1)
+    #     accuracy = self.evaluator.evaluate(scaffold, limit=1)
     #     print("accuracy", accuracy)
     #     self.assertIsInstance(accuracy, float)
 
     # def test_forward_pass(self):
-    #     system = System(
-    #         system_name="arc_test_system",
-    #         system_id=str(uuid.uuid4()),
-    #         system_code=COT_SC["code"],
+    #     scaffold = Scaffold(
+    #         scaffold_name="arc_test_scaffold",
+    #         scaffold_id=str(uuid.uuid4()),
+    #         scaffold_code=COT_SC["code"],
     #     )
-    #     output = asyncio.run(self.evaluator.forward_pass(system))
+    #     output = asyncio.run(self.evaluator.forward_pass(scaffold))
 
     #     print(output)
 

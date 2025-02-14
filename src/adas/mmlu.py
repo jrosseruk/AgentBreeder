@@ -7,7 +7,7 @@ sys.path.append("src/adas")
 from adas.base import LLMAgentBase, Info
 
 
-class MMLUAgentSystem:
+class MMLUAgentScaffold:
     def __init__(self) -> None:
         pass
 
@@ -77,9 +77,9 @@ class MMLUAgentSystem:
 
 
 if __name__ == "__main__":
-    MMLUAgentSystem = MMLUAgentSystem()
+    MMLUAgentScaffold = MMLUAgentScaffold()
     # Set a timeout of 3 minutes (180 seconds)
     input = "What is the capital of france?"
-    output = asyncio.run(MMLUAgentSystem.forward(input))
+    output = asyncio.run(MMLUAgentScaffold.forward(input))
     output = str(output)
     print(output)

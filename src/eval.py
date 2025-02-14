@@ -2,7 +2,7 @@ import argparse
 
 import logging
 
-from base import initialize_session, Population, System
+from base import initialize_session, Population, Scaffold
 
 import os
 import uuid
@@ -44,29 +44,29 @@ class Evaluator:
     def evaluate(
         self,
         population: Population,
-        systems_for_validation: list[System],
+        scaffolds_for_validation: list[Scaffold],
     ):
 
         model_metrics = self.benchmark.evaluate(
-            systems_for_validation,
+            scaffolds_for_validation,
             limit=self.args.n_evals,
         )
 
         records = {
-            system.system_id: {
+            scaffold.scaffold_id: {
                 "population_id": population.population_id,
                 "benchmark": population.population_benchmark,
-                "system_name": system.system_name,
-                "system_id": system.system_id,
-                "system_safety_ci_median": None,
-                "system_safety_ci_upper": None,
-                "system_safety_ci_lower": None,
-                "system_capability_ci_median": None,
-                "system_capability_ci_upper": None,
-                "system_capability_ci_lower": None,
-                "system_code": system.system_code,
+                "scaffold_name": scaffold.scaffold_name,
+                "scaffold_id": scaffold.scaffold_id,
+                "scaffold_safety_ci_median": None,
+                "scaffold_safety_ci_upper": None,
+                "scaffold_safety_ci_lower": None,
+                "scaffold_capability_ci_median": None,
+                "scaffold_capability_ci_upper": None,
+                "scaffold_capability_ci_lower": None,
+                "scaffold_code": scaffold.scaffold_code,
             }
-            for system in systems_for_validation
+            for scaffold in scaffolds_for_validation
         }
 
         # You can now access each model’s metrics via model_metrics
@@ -80,79 +80,79 @@ class Evaluator:
                 print(f"  ci_upper: {metrics['ci_upper']}")
                 print(f"  median:   {metrics['median']}")
 
-                for system in systems_for_validation:
+                for scaffold in scaffolds_for_validation:
 
-                    if str(system.system_id) == model.split("||")[1]:
+                    if str(scaffold.scaffold_id) == model.split("||")[1]:
                         if task == self.benchmarks[self.args.benchmark].__name__:
-                            records[system.system_id]["system_capability_ci_median"] = (
-                                metrics["median"]
-                            )
-                            records[system.system_id]["system_capability_ci_upper"] = (
-                                metrics["ci_upper"]
-                            )
-                            records[system.system_id]["system_capability_ci_lower"] = (
-                                metrics["ci_lower"]
-                            )
+                            records[scaffold.scaffold_id][
+                                "scaffold_capability_ci_median"
+                            ] = metrics["median"]
+                            records[scaffold.scaffold_id][
+                                "scaffold_capability_ci_upper"
+                            ] = metrics["ci_upper"]
+                            records[scaffold.scaffold_id][
+                                "scaffold_capability_ci_lower"
+                            ] = metrics["ci_lower"]
 
                         elif (
                             task == SaladData.__name__ or task == AntiSaladData.__name__
                         ):
-                            records[system.system_id]["system_safety_ci_median"] = (
-                                metrics["median"]
-                            )
-                            records[system.system_id]["system_safety_ci_upper"] = (
-                                metrics["ci_upper"]
-                            )
-                            records[system.system_id]["system_safety_ci_lower"] = (
-                                metrics["ci_lower"]
-                            )
+                            records[scaffold.scaffold_id][
+                                "scaffold_safety_ci_median"
+                            ] = metrics["median"]
+                            records[scaffold.scaffold_id][
+                                "scaffold_safety_ci_upper"
+                            ] = metrics["ci_upper"]
+                            records[scaffold.scaffold_id][
+                                "scaffold_safety_ci_lower"
+                            ] = metrics["ci_lower"]
 
                         elif task == TruthfulQA.__name__:
-                            records[system.system_id]["system_truth_ci_median"] = (
-                                metrics["median"]
-                            )
-                            records[system.system_id]["system_truth_ci_upper"] = (
+                            records[scaffold.scaffold_id][
+                                "scaffold_truth_ci_median"
+                            ] = metrics["median"]
+                            records[scaffold.scaffold_id]["scaffold_truth_ci_upper"] = (
                                 metrics["ci_upper"]
                             )
-                            records[system.system_id]["system_truth_ci_lower"] = (
+                            records[scaffold.scaffold_id]["scaffold_truth_ci_lower"] = (
                                 metrics["ci_lower"]
                             )
 
         return records
 
 
-def compute_pareto_frontier(systems_in_cluster):
+def compute_pareto_frontier(scaffolds_in_cluster):
     def dominates(s1, s2):
         """
         Returns True if s1 dominates s2 across the two objectives:
-        - system_capability_ci_median
-        - system_safety_ci_median
+        - scaffold_capability_ci_median
+        - scaffold_safety_ci_median
         We assume we are maximizing both objectives.
         """
-        if not s1.system_capability_ci_median:
+        if not s1.scaffold_capability_ci_median:
             return False
-        elif not s2.system_capability_ci_median:
+        elif not s2.scaffold_capability_ci_median:
             return True
-        elif not s1.system_safety_ci_median:
+        elif not s1.scaffold_safety_ci_median:
             return True
-        elif not s2.system_safety_ci_median:
+        elif not s2.scaffold_safety_ci_median:
             return False
 
         return (
-            s1.system_capability_ci_median >= s2.system_capability_ci_median
-            and s1.system_safety_ci_median >= s2.system_safety_ci_median
+            s1.scaffold_capability_ci_median >= s2.scaffold_capability_ci_median
+            and s1.scaffold_safety_ci_median >= s2.scaffold_safety_ci_median
             and (
-                s1.system_capability_ci_median > s2.system_capability_ci_median
-                or s1.system_safety_ci_median > s2.system_safety_ci_median
+                s1.scaffold_capability_ci_median > s2.scaffold_capability_ci_median
+                or s1.scaffold_safety_ci_median > s2.scaffold_safety_ci_median
             )
         )
 
     # Compute the Pareto front (non-dominated set)
     pareto_front = []
-    for s1 in systems_in_cluster:
-        # Check if s1 is dominated by any other system
+    for s1 in scaffolds_in_cluster:
+        # Check if s1 is dominated by any other scaffold
         is_dominated = False
-        for s2 in systems_in_cluster:
+        for s2 in scaffolds_in_cluster:
             if s1 == s2:
                 continue
             if dominates(s2, s1):
@@ -195,89 +195,89 @@ if __name__ == "__main__":
 
         # args.benchmark = "gpqa"
 
-        systems = (
-            session.query(System)
+        scaffolds = (
+            session.query(Scaffold)
             .filter_by(population_id=population.population_id)
-            .order_by(System.generation_timestamp)
+            .order_by(Scaffold.generation_timestamp)
             .all()
         )
-        if len(systems) < 10:
+        if len(scaffolds) < 10:
             continue
 
-        filtered_systems = []
+        filtered_scaffolds = []
         generation_set = set()
-        final_generation_systems = []
-        for system in systems:
-            generation_set.add(system.generation_timestamp)
+        final_generation_scaffolds = []
+        for scaffold in scaffolds:
+            generation_set.add(scaffold.generation_timestamp)
             if (
-                not system.system_capability_ci_median
-                or system.system_capability_ci_median == 0
+                not scaffold.scaffold_capability_ci_median
+                or scaffold.scaffold_capability_ci_median == 0
             ):
-                continue  # Skip systems with median capability of 0
+                continue  # Skip scaffolds with median capability of 0
             elif len(generation_set) > 21:
-                continue  # Skip systems after the 10th generation
+                continue  # Skip scaffolds after the 10th generation
             elif len(generation_set) == 21:
-                final_generation_systems.append(system)
+                final_generation_scaffolds.append(scaffold)
 
-            filtered_systems.append(system)
+            filtered_scaffolds.append(scaffold)
 
-        print(f"Found {len(filtered_systems)} systems for evaluation.")
+        print(f"Found {len(filtered_scaffolds)} scaffolds for evaluation.")
         print("Number of generations", len(generation_set))
 
-        baseline_systems = filtered_systems[:7]
+        baseline_scaffolds = filtered_scaffolds[:7]
 
-        generated_systems = filtered_systems[7:]
-        generated_highest_capability_systems: list = sorted(
-            generated_systems,
-            key=lambda x: x.system_capability_ci_median,
+        generated_scaffolds = filtered_scaffolds[7:]
+        generated_highest_capability_scaffolds: list = sorted(
+            generated_scaffolds,
+            key=lambda x: x.scaffold_capability_ci_median,
             reverse=True,
         )[:10]
 
         if args.mode in ["blue", "red"]:
-            generated_highest_safety_systems: list = sorted(
-                generated_systems,
-                key=lambda x: x.system_safety_ci_median,
+            generated_highest_safety_scaffolds: list = sorted(
+                generated_scaffolds,
+                key=lambda x: x.scaffold_safety_ci_median,
                 reverse=True,
             )[:5]
         else:
-            generated_highest_safety_systems = []
+            generated_highest_safety_scaffolds = []
 
         if args.mode in ["ablation"]:
-            generated_highest_pareto_systems = []
+            generated_highest_pareto_scaffolds = []
 
         else:
 
-            generated_highest_pareto_systems: list = compute_pareto_frontier(
-                generated_systems
+            generated_highest_pareto_scaffolds: list = compute_pareto_frontier(
+                generated_scaffolds
             )
 
-        # eval all our systems
-        systems_for_evaluation = (
-            baseline_systems
-            + generated_highest_capability_systems
-            + generated_highest_safety_systems
-            + generated_highest_pareto_systems
-            + final_generation_systems
+        # eval all our scaffolds
+        scaffolds_for_evaluation = (
+            baseline_scaffolds
+            + generated_highest_capability_scaffolds
+            + generated_highest_safety_scaffolds
+            + generated_highest_pareto_scaffolds
+            + final_generation_scaffolds
         )
 
-        for system in systems:
+        for scaffold in scaffolds:
             print(
-                f"System: {system.system_name} | Capability: {system.system_capability_ci_median} | Safety: {system.system_safety_ci_median}"
+                f"Scaffold: {scaffold.scaffold_name} | Capability: {scaffold.scaffold_capability_ci_median} | Safety: {scaffold.scaffold_safety_ci_median}"
             )
 
         time.sleep(3)
 
         # reverse them
-        systems_for_evaluation = list(set(systems_for_evaluation[::-1]))
+        scaffolds_for_evaluation = list(set(scaffolds_for_evaluation[::-1]))
 
         records = {}
         evaluator = Evaluator(args)
-        # for i in range(0, len(systems_for_evaluation), 20):
-        #     systems_chunk = systems_for_evaluation[i : i + 20]
+        # for i in range(0, len(scaffolds_for_evaluation), 20):
+        #     scaffolds_chunk = scaffolds_for_evaluation[i : i + 20]
 
-        #     records.update(evaluator.evaluate(population, systems_chunk))
+        #     records.update(evaluator.evaluate(population, scaffolds_chunk))
 
-        records = evaluator.evaluate(population, systems_for_evaluation)
+        records = evaluator.evaluate(population, scaffolds_for_evaluation)
 
         results_file = f"./src/results/{eval_timestamp_str}/{population.population_benchmark}-{population.population_id}.jsonl"
         os.makedirs(os.path.dirname(results_file), exist_ok=True)

@@ -10,40 +10,40 @@ from chat import get_structured_json_response_from_gpt
 import asyncio
 from functools import wraps
 import threading
-from .system import Agent, Chat, Meeting
+from .scaffold import Agent, Chat, Meeting
 
 
-class System(CustomBase):
-    __tablename__ = "system"
+class Scaffold(CustomBase):
+    __tablename__ = "scaffold"
 
-    system_id = CustomColumn(
+    scaffold_id = CustomColumn(
         String,
         primary_key=True,
         default=lambda: str(uuid.uuid4()),
-        label="The system's unique identifier (UUID).",
+        label="The scaffold's unique identifier (UUID).",
     )
 
-    system_first_parent_id = CustomColumn(
+    scaffold_first_parent_id = CustomColumn(
         String,
         label="The first parent's unique identifier (UUID).",
     )
 
-    system_second_parent_id = CustomColumn(
+    scaffold_second_parent_id = CustomColumn(
         String,
         label="The second parent's unique identifier (UUID). This may be None if mutation rather than crossover.",
     )
 
-    system_mutation_prompt = CustomColumn(
+    scaffold_mutation_prompt = CustomColumn(
         String,
-        label="The prompt used to generate this system.",
+        label="The prompt used to generate this scaffold.",
         default=None,
         nullable=True,
     )
 
-    system_timestamp = CustomColumn(
+    scaffold_timestamp = CustomColumn(
         DateTime,
         default=datetime.datetime.utcnow,
-        label="The timestamp of the multi-agent system.",
+        label="The timestamp of the multi-agent scaffold.",
     )
 
     population_id = CustomColumn(
@@ -51,32 +51,34 @@ class System(CustomBase):
         ForeignKey("population.population_id"),
         label="The population's unique identifier (UUID).",
     )
-    system_name = CustomColumn(String, label="The name of the multi-agent system.")
-    system_code = CustomColumn(
+    scaffold_name = CustomColumn(String, label="The name of the multi-agent scaffold.")
+    scaffold_code = CustomColumn(
         String,
-        label="The code of the multi-agent system. Starting with def forward(self, task: str) -> str:",
+        label="The code of the multi-agent scaffold. Starting with def forward(self, task: str) -> str:",
     )
 
-    system_capability_ci_median = CustomColumn(Float, label="")
-    system_safety_ci_median = CustomColumn(Float, label="")
-    system_capability_ci_lower = CustomColumn(Float, label="")
-    system_capability_ci_upper = CustomColumn(Float, label="")
+    scaffold_capability_ci_median = CustomColumn(Float, label="")
+    scaffold_safety_ci_median = CustomColumn(Float, label="")
+    scaffold_capability_ci_lower = CustomColumn(Float, label="")
+    scaffold_capability_ci_upper = CustomColumn(Float, label="")
 
-    system_capability_ci_sample_size = CustomColumn(Float, label="")
-    system_capability_ci_confidence_level = CustomColumn(Float, label="")
+    scaffold_capability_ci_sample_size = CustomColumn(Float, label="")
+    scaffold_capability_ci_confidence_level = CustomColumn(Float, label="")
 
-    system_safety_ci_lower = CustomColumn(Float, label="")
-    system_safety_ci_upper = CustomColumn(Float, label="")
+    scaffold_safety_ci_lower = CustomColumn(Float, label="")
+    scaffold_safety_ci_upper = CustomColumn(Float, label="")
 
-    system_safety_ci_sample_size = CustomColumn(Float, label="")
-    system_safety_ci_confidence_level = CustomColumn(Float, label="")
-    system_fitness = CustomColumn(Float, label="The fitness of the multi-agent system.")
-    system_descriptor = CustomColumn(
-        JSON, label="The embedding of the multi-agent system as a list of floats."
+    scaffold_safety_ci_sample_size = CustomColumn(Float, label="")
+    scaffold_safety_ci_confidence_level = CustomColumn(Float, label="")
+    scaffold_fitness = CustomColumn(
+        Float, label="The fitness of the multi-agent scaffold."
     )
-    system_thought_process = CustomColumn(
+    scaffold_descriptor = CustomColumn(
+        JSON, label="The embedding of the multi-agent scaffold as a list of floats."
+    )
+    scaffold_thought_process = CustomColumn(
         String,
-        label="The thought process that went into creating the multi-agent system.",
+        label="The thought process that went into creating the multi-agent scaffold.",
     )
     cluster_id = CustomColumn(
         String,
@@ -89,10 +91,10 @@ class System(CustomBase):
     )
 
     population = relationship(
-        "Population", back_populates="systems", collection_class=AutoSaveList
+        "Population", back_populates="scaffolds", collection_class=AutoSaveList
     )
     cluster = relationship(
-        "Cluster", back_populates="systems", collection_class=AutoSaveList
+        "Cluster", back_populates="scaffolds", collection_class=AutoSaveList
     )
 
 
@@ -130,81 +132,75 @@ class Cluster(CustomBase):
     generation = relationship(
         "Generation", back_populates="clusters", collection_class=AutoSaveList
     )
-    systems = relationship(
-        "System", back_populates="cluster", collection_class=AutoSaveList
+    scaffolds = relationship(
+        "Scaffold", back_populates="cluster", collection_class=AutoSaveList
     )
 
     @property
     def elite(self):
         """
-        Returns the multi-agent system with the highest system_fitness in the cluster.
-        If no systems are associated with the cluster, returns None.
+        Returns the multi-agent scaffold with the highest scaffold_fitness in the cluster.
+        If no scaffolds are associated with the cluster, returns None.
         """
-        # from sqlalchemy.orm.session import object_session  # Ensure we use the correct function
 
         # Get the session associated with this object
         session = object_session(self)
 
-        # print("Cluster ID: ", self.cluster_id)
-        # print("Session: ", session)
-
-        # Query the System table for the highest fitness system in this cluster
+        # Query the Scaffold table for the highest fitness scaffold in this cluster
         elite = (
-            session.query(System)
-            .filter(System.cluster_id == self.cluster_id)
-            .order_by(System.system_capability_ci_median.desc())
+            session.query(Scaffold)
+            .filter(Scaffold.cluster_id == self.cluster_id)
+            .order_by(Scaffold.scaffold_capability_ci_median.desc())
             .first()
         )
 
         if not elite:
             raise ValueError("No elite found in cluster.")
 
-        # print("Elite: ", elite)
-
         return elite
 
     @property
     def pareto_elites(self):
         """
-        Return all Pareto-optimal systems in this cluster with respect to
-        (system_fitness, system_safety).
+        Return all Pareto-optimal scaffolds in this cluster with respect to
+        (scaffold_fitness, scaffold_safety).
         """
         session = object_session(self)
-        # Fetch all systems in this cluster
-        systems_in_cluster = (
-            session.query(System).filter(System.cluster_id == self.cluster_id).all()
+        # Fetch all scaffolds in this cluster
+        scaffolds_in_cluster = (
+            session.query(Scaffold).filter(Scaffold.cluster_id == self.cluster_id).all()
         )
 
-        if not systems_in_cluster:
-            raise ValueError("No systems found in this cluster.")
+        if not scaffolds_in_cluster:
+            raise ValueError("No scaffolds found in this cluster.")
 
         def dominates(s1, s2):
             """
             Returns True if s1 dominates s2 across the two objectives:
-            - system_capability_ci_median
-            - system_safety_ci_median
+            - scaffold_capability_ci_median
+            - scaffold_safety_ci_median
             We assume we are maximizing both objectives.
             """
-            if not s1.system_capability_ci_median:
+            if not s1.scaffold_capability_ci_median:
                 return False
-            elif not s2.system_capability_ci_median:
+            elif not s2.scaffold_capability_ci_median:
                 return True
 
             return (
-                s1.system_capability_ci_median >= s2.system_capability_ci_median
-                and s1.system_safety_ci_median >= s2.system_safety_ci_median
+                s1.scaffold_capability_ci_median >= s2.scaffold_capability_ci_median
+                and s1.scaffold_safety_ci_median >= s2.scaffold_safety_ci_median
                 and (
-                    s1.system_capability_ci_median > s2.system_capability_ci_median
-                    or s1.system_safety_ci_median > s2.system_safety_ci_median
+                    s1.scaffold_capability_ci_median > s2.scaffold_capability_ci_median
+                    or s1.scaffold_safety_ci_median > s2.scaffold_safety_ci_median
                 )
             )
 
         # Compute the Pareto front (non-dominated set)
         pareto_front = []
-        for s1 in systems_in_cluster:
-            # Check if s1 is dominated by any other system
+        for s1 in scaffolds_in_cluster:
+            # Check if s1 is dominated by any other scaffold
             is_dominated = False
-            for s2 in systems_in_cluster:
+            for s2 in scaffolds_in_cluster:
                 if s1 == s2:
                     continue
                 if dominates(s2, s1):
@@ -217,9 +213,9 @@ class Cluster(CustomBase):
             "Pareto front: ",
             [
                 {
-                    "system_id": p.system_id,
-                    "capability": p.system_capability_ci_median,
-                    "safety": p.system_safety_ci_median,
+                    "scaffold_id": p.scaffold_id,
+                    "capability": p.scaffold_capability_ci_median,
+                    "safety": p.scaffold_safety_ci_median,
                 }
                 for p in pareto_front
             ],
@@ -278,8 +274,8 @@ class Population(CustomBase):
     )
 
     # Relationships
-    systems = relationship(
-        "System", back_populates="population", collection_class=AutoSaveList
+    scaffolds = relationship(
+        "Scaffold", back_populates="population", collection_class=AutoSaveList
     )
     clusters = relationship(
         "Cluster", back_populates="population", collection_class=AutoSaveList
@@ -289,7 +285,7 @@ class Population(CustomBase):
     )
 
     @property
-    def pareto_elites(self) -> list[System]:
+    def pareto_elites(self) -> list[Scaffold]:
         """Returns from the most recent generation the elites from each cluster."""
 
         session = object_session(self)
@@ -303,7 +299,7 @@ class Population(CustomBase):
         )
 
         if not most_recent_generation:
-            elites = self.systems
+            elites = self.scaffolds
             assert len(elites) > 0
             return elites
 
@@ -319,7 +315,7 @@ class Population(CustomBase):
         return elites
 
     @property
-    def elites(self) -> list[System]:
+    def elites(self) -> list[Scaffold]:
         """Returns from the most recent generation the elites from each cluster."""
 
         session = object_session(self)
@@ -333,7 +329,7 @@ class Population(CustomBase):
         )
 
         if not most_recent_generation:
-            elites = self.systems
+            elites = self.scaffolds
             assert len(elites) > 0
             return elites
 

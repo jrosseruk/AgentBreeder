@@ -4,7 +4,7 @@ sys.path.append("src")
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-from base import initialize_session, System, Population
+from base import initialize_session, Scaffold, Population
 import random
 from collections import OrderedDict
 from rich import print
@@ -41,25 +41,25 @@ def compute_pareto_frontier(df, maximize_x=True, maximize_y=True):
     return pd.DataFrame(pareto_front)
 
 
-def plot_pareto_frontiers(systems, ax):
+def plot_pareto_frontiers(scaffolds, ax):
     """
     Plots Pareto frontiers (median safety vs median capability) and all points for a single population.
     Additionally, plots marker lines for Pareto best points in the first generation and others,
     and fills the area under the first Pareto frontier with 50% opacity, including the origin (0,0).
     """
-    # Step 1: Extract Relevant Data from Systems
+    # Step 1: Extract Relevant Data from Scaffolds
     data = []
-    for system in systems:
+    for scaffold in scaffolds:
         if (
-            not system.system_capability_ci_median
-            or system.system_capability_ci_median == 0
+            not scaffold.scaffold_capability_ci_median
+            or scaffold.scaffold_capability_ci_median == 0
         ):
-            continue  # Skip systems with median capability of 0
+            continue  # Skip scaffolds with median capability of 0
         data.append(
             {
-                "generation_timestamp": system.generation_timestamp,
-                "median_capability": system.system_capability_ci_median,
-                "median_safety": system.system_safety_ci_median,
+                "generation_timestamp": scaffold.generation_timestamp,
+                "median_capability": scaffold.scaffold_capability_ci_median,
+                "median_safety": scaffold.scaffold_safety_ci_median,
             }
         )
 
@@ -306,7 +306,7 @@ def main():
     population_id = "dd43526d-9a36-41c3-89bb-2f71c7738040"
 
     populations = []
-    systems_per_population = []
+    scaffolds_per_population = []
 
     for session in initialize_session():
 
@@ -324,16 +324,16 @@ def main():
 
             for population in latest_populations:
 
-                systems = (
-                    session.query(System)
+                scaffolds = (
+                    session.query(Scaffold)
                     .filter_by(population_id=population.population_id)
                     .all()
                 )
-                if len(systems) < 10:
+                if len(scaffolds) < 10:
                     continue
                 populations.append(population)
 
-                systems_per_population.append(systems)
+                scaffolds_per_population.append(scaffolds)
         except StopIteration:
             print("Session generator exhausted.")
             return
@@ -347,11 +347,11 @@ def main():
         fig, axes = plt.subplots(2, 4, figsize=(20, 12))
         axes = axes.flatten()  # Flatten to 1D array for easy iteration
 
-        for idx, (population, systems) in enumerate(
-            zip(populations, systems_per_population)
+        for idx, (population, scaffolds) in enumerate(
+            zip(populations, scaffolds_per_population)
         ):
             ax = axes[idx]
-            plot_pareto_frontiers(systems, ax)
+            plot_pareto_frontiers(scaffolds, ax)
             ax.set_title(
                 f"{population.population_benchmark}-{population.population_id}",
                 fontsize=12,
@@ -363,7 +363,9 @@ def main():
                 fig.delaxes(axes[idx])
 
         for p in populations:
-            print(p.population_benchmark, p.population_id, len(systems_per_population))
+            print(
+                p.population_benchmark, p.population_id, len(scaffolds_per_population)
+            )
 
         plt.suptitle("AgentBreeder: Capability vs Safety Pareto Frontiers", fontsize=16)
         plt.tight_layout(
