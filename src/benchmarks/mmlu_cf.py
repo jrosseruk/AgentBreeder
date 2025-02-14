@@ -4,11 +4,11 @@ from inspect_ai.model import GenerateConfig
 from inspect_ai.dataset import Dataset
 from typing import Any, Literal, Union
 from textwrap import dedent
-from ..benchmark import Benchmark, register_benchmark
+from benchmarks.benchmark import Benchmark, register_benchmark
 
 
-@register_benchmark("mgsm")
-class MGSM(Benchmark):
+@register_benchmark("mmlu_cf")
+class MMLUCF(Benchmark):
 
     def __init__(
         self,
@@ -22,13 +22,13 @@ class MGSM(Benchmark):
         self.args = args
 
         split_mapping = {
-            "validation": "train",
-            "test": "test",
+            "validation": "val",
+            "test": "val",
         }
 
         self.dataset = self.filtered_hf_dataset(
-            path="juletxara/mgsm",
-            name=["bn", "de", "en", "es", "fr", "ja", "ru", "sw", "te", "th", "zh"],
+            path="microsoft/MMLU-CF",
+            name="default",
             split=split,
             split_mapping=split_mapping,
             sample_fields=self._record_to_sample,
@@ -38,27 +38,40 @@ class MGSM(Benchmark):
         )
 
     def _record_to_sample(self, record: dict[str, Any]) -> Sample:
+        """
+        Convert a record containing a multiple-choice question into a `Sample` object.
+        """
 
         # Construct the main prompt including the question
         question_prompt = dedent(
             f"""
-            Answer the following maths question:
+            Answer the following multiple choice question.
 
-            {record["question"]}
+            {record["Question"]}
         """
         ).strip()
 
+        choices = [record["A"], record["B"], record["C"], record["D"]]
+
+        # Append the choices, labeling each with a letter starting at 'A'
+        choices_prompt = "\n".join(
+            f"({chr(65 + i)}) {choice}" for i, choice in enumerate(choices)
+        )
+        # print("choices_prompt", choices_prompt)
+
         # Combine question and choices into a single prompt
-        prompt = f"{question_prompt}\n\n"
-        output_format = "Provide your final answer as a single number."
+        prompt = f"{question_prompt}\n{choices_prompt}\n\n"
+        output_format = f"Provide your final answer as a single letter in the range A-{chr(65 + len(choices) - 1)}."
         prompt += f"OUTPUT ANSWER FORMAT: {output_format}"
+
+        # Determine the correct answer letter
+        correct_answer_letter = record["Answer"]
 
         return Sample(
             input=prompt,
-            target=str(record["answer_number"]),
+            target=correct_answer_letter,
             metadata={
                 "format": output_format,
-                "answer": record["answer"],
                 "unique_id": record["unique_id"],
             },
         )
@@ -70,6 +83,6 @@ class MGSM(Benchmark):
             name=self.__class__.__name__,
             dataset=self.dataset,
             solver=self.match_solver(),
-            scorer=self.llm_match(),
+            scorer=self.multi_choice_match(),
             config=GenerateConfig(temperature=0.5),
         )

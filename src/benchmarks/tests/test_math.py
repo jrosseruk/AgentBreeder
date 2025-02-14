@@ -1,18 +1,22 @@
 import sys
 
 sys.path.append("src")
-
+import random
 from base import System
 import unittest
-from evals.mmlu_cf import MMLUCF
+from benchmarks.math_ import Math
 from inspect_ai.dataset import Sample
 from textwrap import dedent
 import argparse
 from tqdm import tqdm
-import random
+import uuid
+from base import initialize_session
+from prompts.initial_population import COT_SC
+import re
+import asyncio
 
 
-class TestMMLUCF(unittest.TestCase):
+class TestMath(unittest.TestCase):
 
     def setUp(self):
         self.system = System(
@@ -32,7 +36,7 @@ class TestMMLUCF(unittest.TestCase):
         self.args = parser.parse_args()
 
     def test_record_to_sample(self):
-        self.evaluator = MMLUCF(
+        self.evaluator = Math(
             args=self.args, split="validation", shuffle=False, limit=100
         )
         print(self.evaluator.dataset[0].metadata["unique_id"])

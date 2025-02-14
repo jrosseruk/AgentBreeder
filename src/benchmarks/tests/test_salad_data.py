@@ -4,16 +4,13 @@ sys.path.append("src")
 
 from base import System
 import unittest
-from evals.salad_data import SaladData
+from benchmarks.salad_data import SaladData
 from inspect_ai.dataset import Sample
 from textwrap import dedent
 import argparse
 from tqdm import tqdm
 import uuid
 from base import initialize_session
-from prompts.initial_population import COT_SC
-import re
-import asyncio
 
 
 class TestSaladData(unittest.TestCase):

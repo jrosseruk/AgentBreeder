@@ -1,10 +1,10 @@
 from base import System
 
-from evals.benchmarks.salad_data import SaladData
-from evals.benchmarks.truthful_qa import TruthfulQA
-from evals.benchmarks.anti_salad_data import AntiSaladData
+from benchmarks.salad_data import SaladData
+from benchmarks.truthful_qa import TruthfulQA
+from benchmarks.anti_salad_data import AntiSaladData
 
-from .benchmark import AgentSystemException, benchmark_registry
+from benchmarks import benchmark_registry
 
 
 class Validator:

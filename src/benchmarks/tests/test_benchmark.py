@@ -3,7 +3,7 @@ import sys
 sys.path.append("src")
 import argparse
 
-from evals.math_500 import Math500
+from benchmarks.math_500 import Math500
 from evals.negative_sampler import get_positive_and_negative_samples
 
 parser = argparse.ArgumentParser()

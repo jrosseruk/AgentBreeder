@@ -4,7 +4,7 @@ sys.path.append("src")
 
 from base import System
 import unittest
-from evals.arc import ARC
+from benchmarks.arc import ARC
 from inspect_ai.dataset import Sample
 from textwrap import dedent
 import argparse

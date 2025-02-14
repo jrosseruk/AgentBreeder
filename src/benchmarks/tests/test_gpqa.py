@@ -4,7 +4,7 @@ sys.path.append("src")
 
 from base import System
 import unittest
-from evals.clrs_text import CLRSText
+from benchmarks.gpqa import GPQA
 from inspect_ai.dataset import Sample
 from textwrap import dedent
 import argparse
@@ -16,7 +16,7 @@ import re
 import asyncio
 
 
-class TestCLRSText(unittest.TestCase):
+class TestGPQA(unittest.TestCase):
 
     def setUp(self):
         self.system = System(
@@ -36,7 +36,10 @@ class TestCLRSText(unittest.TestCase):
         self.args = parser.parse_args()
 
     def test_record_to_sample(self):
-        self.evaluator = CLRSText(args=self.args, split="validation", limit=1)
+        self.evaluator = GPQA(
+            args=self.args, split="validation", shuffle=False, limit=100
+        )
+        print([sample.input[100] for sample in self.evaluator.dataset])
 
 
 if __name__ == "__main__":

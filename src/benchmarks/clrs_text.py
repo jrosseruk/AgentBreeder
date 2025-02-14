@@ -10,8 +10,8 @@ import logging
 from textwrap import dedent
 from typing import Any, Literal, Union
 
-from ..metrics import ci_lower, ci_upper, median
-from ..benchmark import Benchmark, register_benchmark
+from evals.metrics import ci_lower, ci_upper, median
+from benchmarks.benchmark import Benchmark, register_benchmark
 
 
 @register_benchmark("clrs_text")

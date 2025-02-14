@@ -4,7 +4,7 @@ sys.path.append("src")
 
 from base import System
 import unittest
-from evals.mmlu import MMLU
+from benchmarks.mmlu import MMLU
 from inspect_ai.dataset import Sample
 from textwrap import dedent
 import argparse

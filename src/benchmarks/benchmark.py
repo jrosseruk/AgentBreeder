@@ -27,16 +27,16 @@ from pathlib import Path
 from typing import Any
 import hashlib
 from chat import get_structured_json_response_from_gpt
-from .metrics import ci_lower, ci_upper, median
+from evals.metrics import ci_lower, ci_upper, median
 from abc import ABC, abstractmethod
 import os
 import importlib.util
 import uuid
-from .model import CustomModel, CustomModelAPI
+from evals.model import CustomModel, CustomModelAPI
 import json
 from typing import Any, Union
 
-from .negative_sampler import get_positive_and_negative_samples
+from evals.negative_sampler import get_positive_and_negative_samples
 import re
 import time
 import random
@@ -91,9 +91,9 @@ class Benchmark(ABC):
 
             models.append(CustomModel(api=custom_api, config=GenerateConfig()))
 
-        from .benchmarks.salad_data import SaladData
-        from .benchmarks.anti_salad_data import AntiSaladData
-        from .benchmarks.truthful_qa import TruthfulQA
+        from benchmarks.salad_data import SaladData
+        from benchmarks.anti_salad_data import AntiSaladData
+        from benchmarks.truthful_qa import TruthfulQA
 
         self.split = self.split if self.split else "NONE"
 

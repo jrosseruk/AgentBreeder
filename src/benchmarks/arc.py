@@ -8,8 +8,8 @@ from typing import Any, Literal, Union
 from textwrap import dedent
 import re
 
-from ..metrics import ci_lower, ci_upper, median
-from ..benchmark import Benchmark, register_benchmark
+from evals.metrics import ci_lower, ci_upper, median
+from benchmarks.benchmark import Benchmark, register_benchmark
 
 
 @register_benchmark("arc")

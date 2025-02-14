@@ -2,13 +2,16 @@ from inspect_ai import Task, task
 from inspect_ai.dataset import Sample
 from inspect_ai.model import GenerateConfig
 from inspect_ai.dataset import Dataset
+
 from typing import Any, Literal, Union
 from textwrap import dedent
-from ..benchmark import Benchmark, register_benchmark
+import random
+
+from benchmarks.benchmark import Benchmark, register_benchmark
 
 
-@register_benchmark("simple_qa")
-class SimpleQA(Benchmark):
+@register_benchmark("gpqa")
+class GPQA(Benchmark):
 
     def __init__(
         self,
@@ -22,13 +25,13 @@ class SimpleQA(Benchmark):
         self.args = args
 
         split_mapping = {
-            "validation": "test",
-            "test": "test",
+            "validation": "train",
+            "test": "train",
         }
 
         self.dataset = self.filtered_hf_dataset(
-            path="basicv8vc/SimpleQA",
-            name="default",
+            path="Idavidrein/gpqa",
+            name="gpqa_diamond",
             split=split,
             split_mapping=split_mapping,
             sample_fields=self._record_to_sample,
@@ -37,28 +40,53 @@ class SimpleQA(Benchmark):
             limit=limit,
         )
 
+        print(f"Dataset size: {len(self.dataset)}")
+
     def _record_to_sample(self, record: dict[str, Any]) -> Sample:
+        """
+        Convert a record containing a multiple-choice question into a `Sample` object.
+        """
 
         # Construct the main prompt including the question
         question_prompt = dedent(
             f"""
-            Answer the following question:
+            Answer the following multiple choice question.
 
-            {record["problem"]}
+            {record["Question"]}
         """
         ).strip()
 
+        choices = [
+            record["Correct Answer"],
+            record["Incorrect Answer 1"],
+            record["Incorrect Answer 2"],
+            record["Incorrect Answer 3"],
+        ]
+
+        random.shuffle(choices)
+
+        # Append the choices, labeling each with a letter starting at 'A'
+        choices_prompt = "\n".join(
+            f"({chr(65 + i)}) {choice}" for i, choice in enumerate(choices)
+        )
+        # print("choices_prompt", choices_prompt)
+
         # Combine question and choices into a single prompt
-        prompt = f"{question_prompt}\n\n"
-        output_format = "Provide your final answer as succinctly as possible E.g. a single number, date, or a few words."
+        prompt = (
+            f"{question_prompt}\n{choices_prompt}\n"  # Removed the extra line break
+        )
+        output_format = f"""Provide your final answer as a single letter in the range A-{chr(65 + len(choices) - 1)}."""
         prompt += f"OUTPUT ANSWER FORMAT: {output_format}"
+
+        # Determine the correct answer letter
+        correct_answer_letter = chr(65 + choices.index(record["Correct Answer"]))
 
         return Sample(
             input=prompt,
-            target=str(record["answer"]),
+            target=correct_answer_letter,
             metadata={
                 "format": output_format,
-                "answer": record["answer"],
+                "correct_answer": record["Correct Answer"],
                 "unique_id": record["unique_id"],
             },
         )
@@ -70,6 +98,6 @@ class SimpleQA(Benchmark):
             name=self.__class__.__name__,
             dataset=self.dataset,
             solver=self.match_solver(),
-            scorer=self.llm_match(),
+            scorer=self.multi_choice_match(),
             config=GenerateConfig(temperature=0.5),
         )

@@ -1,10 +1,10 @@
 import sys
 
 sys.path.append("src")
-import random
+
 from base import System
 import unittest
-from evals.math_ import Math
+from benchmarks.clrs_text import CLRSText
 from inspect_ai.dataset import Sample
 from textwrap import dedent
 import argparse
@@ -16,7 +16,7 @@ import re
 import asyncio
 
 
-class TestMath(unittest.TestCase):
+class TestCLRSText(unittest.TestCase):
 
     def setUp(self):
         self.system = System(
@@ -36,12 +36,7 @@ class TestMath(unittest.TestCase):
         self.args = parser.parse_args()
 
     def test_record_to_sample(self):
-        self.evaluator = Math(
-            args=self.args, split="validation", shuffle=False, limit=100
-        )
-        print(self.evaluator.dataset[0].metadata["unique_id"])
-        print(random.choice(self.evaluator.dataset))
-        # print([sample.input for sample in self.evaluator.dataset])
+        self.evaluator = CLRSText(args=self.args, split="validation", limit=1)
 
 
 if __name__ == "__main__":

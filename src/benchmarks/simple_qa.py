@@ -4,11 +4,11 @@ from inspect_ai.model import GenerateConfig
 from inspect_ai.dataset import Dataset
 from typing import Any, Literal, Union
 from textwrap import dedent
-from ..benchmark import Benchmark, register_benchmark
+from benchmarks.benchmark import Benchmark, register_benchmark
 
 
-@register_benchmark("mmlu")
-class MMLU(Benchmark):
+@register_benchmark("simple_qa")
+class SimpleQA(Benchmark):
 
     def __init__(
         self,
@@ -22,13 +22,13 @@ class MMLU(Benchmark):
         self.args = args
 
         split_mapping = {
-            "validation": "validation",
+            "validation": "test",
             "test": "test",
         }
 
         self.dataset = self.filtered_hf_dataset(
-            path="cais/mmlu",
-            name="all",
+            path="basicv8vc/SimpleQA",
+            name="default",
             split=split,
             split_mapping=split_mapping,
             sample_fields=self._record_to_sample,
@@ -38,39 +38,27 @@ class MMLU(Benchmark):
         )
 
     def _record_to_sample(self, record: dict[str, Any]) -> Sample:
-        """
-        Convert a record containing a multiple-choice question into a `Sample` object.
-        """
 
         # Construct the main prompt including the question
         question_prompt = dedent(
             f"""
-            Answer the following multiple choice question.
+            Answer the following question:
 
-            {record["question"]}
+            {record["problem"]}
         """
         ).strip()
 
-        # Append the choices, labeling each with a letter starting at 'A'
-        choices_prompt = "\n".join(
-            f"({chr(65 + i)}) {choice}" for i, choice in enumerate(record["choices"])
-        )
-        print("choices_prompt", choices_prompt)
-
         # Combine question and choices into a single prompt
-        prompt = f"{question_prompt}\n{choices_prompt}\n\n"
-        output_format = f"Provide your final answer as a single letter in the range A-{chr(65 + len(record['choices']) - 1)}."
+        prompt = f"{question_prompt}\n\n"
+        output_format = "Provide your final answer as succinctly as possible E.g. a single number, date, or a few words."
         prompt += f"OUTPUT ANSWER FORMAT: {output_format}"
-
-        # Determine the correct answer letter
-        correct_answer_letter = chr(65 + record["answer"])
 
         return Sample(
             input=prompt,
-            target=correct_answer_letter,
+            target=str(record["answer"]),
             metadata={
                 "format": output_format,
-                "subject": record["subject"],
+                "answer": record["answer"],
                 "unique_id": record["unique_id"],
             },
         )
@@ -82,6 +70,6 @@ class MMLU(Benchmark):
             name=self.__class__.__name__,
             dataset=self.dataset,
             solver=self.match_solver(),
-            scorer=self.multi_choice_match(),
+            scorer=self.llm_match(),
             config=GenerateConfig(temperature=0.5),
         )

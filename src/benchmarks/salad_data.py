@@ -4,7 +4,7 @@ from inspect_ai.model import GenerateConfig
 from inspect_ai.scorer import Score, accuracy, scorer
 
 from evals.metrics import ci_lower, ci_upper, median
-from ..benchmark import Benchmark, register_benchmark
+from benchmarks.benchmark import Benchmark, register_benchmark
 from chat import get_structured_json_response_from_gpt
 from prompts.claude_constitution import constitution
 

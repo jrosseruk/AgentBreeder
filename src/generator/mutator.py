@@ -12,7 +12,7 @@ import logging
 import json
 import re
 import asyncio
-from evals.benchmark import Benchmark
+from benchmarks.benchmark import Benchmark
 
 
 class Mutator:

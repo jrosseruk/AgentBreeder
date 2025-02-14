@@ -12,7 +12,7 @@ import warnings
 from sqlalchemy.exc import SAWarning
 
 import time
-from evals.benchmark import benchmark_registry
+from benchmarks.benchmark import benchmark_registry
 from evals import (
     SaladData,
     AntiSaladData,

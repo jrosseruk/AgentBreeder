@@ -7,8 +7,8 @@ from inspect_ai.scorer import Score, scorer, accuracy
 from typing import Any, Literal, Union
 from textwrap import dedent
 
-from ..benchmark import Benchmark, register_benchmark
-from ..metrics import ci_lower, ci_upper, median
+from benchmarks.benchmark import Benchmark, register_benchmark
+from evals.metrics import ci_lower, ci_upper, median
 
 from sympy import Eq, sympify, simplify
 from sympy.parsing.latex import parse_latex
