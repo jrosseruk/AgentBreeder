@@ -45,29 +45,3 @@ async def get_json_completion(
     except json.JSONDecodeError as e:
         logging.error(f"JSON decode error: {e}")
         return {}
-
-
-async def main():
-    response = await get_json_completion(
-        messages=[
-            {
-                "role": "user",
-                "content": "Please think step by step and then solve the task.",
-            },
-            {
-                "role": "user",
-                "content": "What is the captial of France? A: Paris B: London C: Berlin D: Madrid.",
-            },
-        ],
-        response_format={
-            "thinking": "Your step by step thinking.",
-            "answer": "A single letter, A, B, C or D.",
-        },
-        model="claude-3-5-sonnet-20241022",
-    )
-    print(response)
-
-
-if __name__ == "__main__":
-
-    asyncio.run(main())
