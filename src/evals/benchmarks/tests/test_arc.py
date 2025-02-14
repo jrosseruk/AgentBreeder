@@ -4,14 +4,14 @@ sys.path.append("src")
 
 from base import Scaffold
 import unittest
-from benchmarks.arc import ARC
+from evals.benchmarks.arc import ARC
 from inspect_ai.dataset import Sample
 from textwrap import dedent
 import argparse
 from tqdm import tqdm
 import uuid
 from base import initialize_session
-from prompts.initial_population import COT_SC
+from discover.seed_scaffolds import COT_SC
 import re
 import asyncio
 

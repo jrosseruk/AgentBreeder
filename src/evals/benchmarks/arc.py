@@ -9,7 +9,7 @@ from textwrap import dedent
 import re
 
 from evals.metrics import ci_lower, ci_upper, median
-from benchmarks.benchmark import Benchmark, register_benchmark
+from evals.benchmark import Benchmark, register_benchmark
 
 
 @register_benchmark("arc")
@@ -255,3 +255,58 @@ def transform(grid: list[list[int]]) -> list[list[int]]:
 
         # Prevent division by zero
         return float(score) / total if total > 0 else 0.0
+
+    @classmethod
+    @property
+    def prompt(self):
+        return dedent(
+            """
+        Your aim is to find an optimal multi-agent scaffold performing well on the ARC (Abstraction and Reasoning Corpus)
+        challenge.
+        In this challenge, each task consists of three demonstration examples, and one test example. Each
+        Example consists of an “input grid” and an “output grid”. Test-takers need to use the transformation rule
+        learned from the examples to predict the output grid for the test example.
+        # #An example task from ARC challenge:
+        ## Task Overview:
+        You will be given some number of paired example inputs and outputs grids. The outputs were produced
+        by applying a transformation rule to the input grids. In addition to the paired example inputs and
+        outputs, there is also one test input without a known output.
+        The inputs and outputs are each “grids”. A grid is a rectangular matrix of integers between 0 and 9
+        (inclusive). Each number corresponds to a color. 0 is black.
+        Your task is to determine the transformation rule from examples and find out the answer, involving
+        determining the size of the output grid for the test and correctly filling each cell of the grid with the
+        appropriate color or number.
+        The transformation only needs to be unambiguous and applicable to the example inputs and the test
+        input. It doesn’t need to work for all possible inputs. Observe the examples carefully, imagine the grid
+        visually, and try to find the pattern.
+        ## Examples:
+        ### Example 0:
+        input = [[0,0,0,0,5,0,0,0,0], [0,0,0,0,5,0,0,0,0], [0,0,0,4,5,0,0,0,0], [0,0,0,4,5,4,4,0,0],
+        [0,0,3,3,5,0,0,0,0], [0,0,0,3,5,0,0,0,0], [0,0,0,3,5,3,3,3,0], [0,0,0,3,5,0,0,0,0], [0,0,0,0,5,0,0,0,0],
+        [0,0,0,0,5,0,0,0,0]]
+        output = [[0,0,0,0], [0,0,0,0], [0,0,0,4], [0,0,4,4], [0,0,3,3], [0,0,0,3], [0,3,3,3], [0,0,0,3], [0,0,0,0],
+        [0,0,0,0]]
+        ### Example 1:
+        input = [[0,0,0,0,5,0,0,0,0], [0,0,0,2,5,0,0,0,0], [0,0,0,2,5,2,6,0,0], [0,0,0,2,5,0,0,0,0],
+        [0,0,0,2,5,2,2,2,0], [0,0,6,6,5,6,0,0,0], [0,0,0,2,5,0,0,0,0], [0,2,2,0,5,2,0,0,0], [0,0,0,2,5,0,0,0,0],
+        [0,0,0,0,5,0,0,0,0]]
+        output = [[0,0,0,0], [0,0,0,2], [0,0,6,2], [0,0,0,2], [0,2,2,2], [0,0,6,6], [0,0,0,2], [0,2,2,2], [0,0,0,2],
+        [0,0,0,0]]
+        ### Example 2:
+        input = [[0,0,0,0,5,0,0,0,0], [0,0,0,0,5,7,0,0,0], [0,0,0,8,5,0,0,0,0], [0,0,0,8,5,0,0,0,0],
+        [0,7,8,8,5,0,0,0,0], [0,0,0,0,5,8,8,0,0], [0,0,0,8,5,0,0,0,0], [0,0,0,8,5,0,0,0,0], [0,0,0,0,5,8,7,0,0],
+        [0,0,0,0,5,0,0,0,0]]
+        output= [[0,0,0,0], [0,0,0,7], [0,0,0,8], [0,0,0,8], [0,7,8,8], [0,0,8,8], [0,0,0,8], [0,0,0,8], [0,0,7,8],
+        [0,0,0,0]]
+        ### Test Problem:
+        input = [[0,0,0,0,5,0,0,0,0], [0,0,0,1,5,0,0,0,0], [0,0,0,1,5,1,0,0,0], [0,1,1,1,5,1,1,1,6],
+        [0,0,0,6,5,6,6,0,0], [0,0,0,0,5,1,1,1,0], [0,0,0,1,5,0,0,0,0], [0,0,0,1,5,1,6,0,0], [0,0,0,0,5,6,0,0,0],
+        [0,0,0,0,5,0,0,0,0]]
+        Analyze the transformation rules and Test Input and return the transformation function in the format:
+```
+def transform(grid: list[list[int]]) -> list[list[int]]:
+    # Your code here
+    return transformed_grid
+```
+        """
+        )

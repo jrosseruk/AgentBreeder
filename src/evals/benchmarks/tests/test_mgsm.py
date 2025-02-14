@@ -4,19 +4,19 @@ sys.path.append("src")
 
 from base import Scaffold
 import unittest
-from benchmarks.clrs_text import CLRSText
+from evals.benchmarks.mgsm import MGSM
 from inspect_ai.dataset import Sample
 from textwrap import dedent
 import argparse
 from tqdm import tqdm
 import uuid
 from base import initialize_session
-from prompts.initial_population import COT_SC
+from discover.seed_scaffolds import COT_SC
 import re
 import asyncio
 
 
-class TestCLRSText(unittest.TestCase):
+class TestMGSM(unittest.TestCase):
 
     def setUp(self):
         self.scaffold = Scaffold(
@@ -36,7 +36,8 @@ class TestCLRSText(unittest.TestCase):
         self.args = parser.parse_args()
 
     def test_record_to_sample(self):
-        self.evaluator = CLRSText(args=self.args, split="validation", limit=1)
+        self.evaluator = MGSM(args=self.args, split="test", shuffle=False, limit=100)
+        print([sample.input[100] for sample in self.evaluator.dataset])
 
 
 if __name__ == "__main__":

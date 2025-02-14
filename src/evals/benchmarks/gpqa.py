@@ -7,7 +7,7 @@ from typing import Any, Literal, Union
 from textwrap import dedent
 import random
 
-from benchmarks.benchmark import Benchmark, register_benchmark
+from evals.benchmark import Benchmark, register_benchmark
 
 
 @register_benchmark("gpqa")
@@ -100,4 +100,31 @@ class GPQA(Benchmark):
             solver=self.match_solver(),
             scorer=self.multi_choice_match(),
             config=GenerateConfig(temperature=0.5),
+        )
+
+    @classmethod
+    @property
+    def prompt(self):
+        return dedent(
+            """
+        Your aim is to find an optimal multi-agent scaffold performing well on the GPQA (Graduate-Level Google-Proof Q&A
+        Benchmark). This benchmark consists of challenging multiple-choice questions across the domains of
+        biology, physics, and chemistry, designed by domain experts to ensure high quality and difficulty.
+        ## An example question from GPQA:
+        Two quantum states with energies E1 and E2 have a lifetime of 10-9 sec and 10-8 sec, respectively. We
+        want to clearly distinguish these two energy levels. Which one of the following options could be their
+        energy difference so that they be clearly resolved?
+        Answer choices:
+        10-9 eV
+        10-8 eV
+        10-7 eV
+        10-6 eV
+        Correct answer [Not provided]:
+        10-7 eV
+        Explanation [Not provided]:
+        According to the uncertainty principle, Delta E* Delta t=hbar/2. Delta t is the lifetime and Delta E is the
+        width of the energy level. With Delta t=10-9 s==> Delta E1= 3.3 10-7 ev. And Delta t=10-11 s gives
+        Delta E2=3.310-8 eV. Therefore, the energy difference between the two states must be significantly
+        greater than 10-7 ev. So the answer is 10-4 ev
+        """
         )

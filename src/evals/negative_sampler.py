@@ -4,7 +4,6 @@ import os
 import glob
 from datetime import datetime
 from rich import print
-import time
 
 
 def find_all_baseline_files(validation_dir, Benchmark):

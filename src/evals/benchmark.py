@@ -24,22 +24,23 @@ from inspect_ai.dataset._dataset import (
 from inspect_ai.dataset._util import data_to_samples, record_to_sample_fn
 
 from pathlib import Path
-from typing import Any
 import hashlib
-from api import get_json_completion
-from evals.metrics import ci_lower, ci_upper, median
 from abc import ABC, abstractmethod
 import os
 import importlib.util
 import uuid
-from evals.model import CustomModel, CustomModelAPI
 import json
 from typing import Any, Union
-
-from evals.negative_sampler import get_positive_and_negative_samples
 import re
 import time
 import random
+
+from api import get_json_completion
+
+from .negative_sampler import get_positive_and_negative_samples
+from .model import CustomModel, CustomModelAPI
+from .metrics import ci_lower, ci_upper, median
+
 
 benchmark_registry = {}
 
@@ -87,9 +88,9 @@ class Benchmark(ABC):
 
             models.append(CustomModel(api=custom_api, config=GenerateConfig()))
 
-        from benchmarks.salad_data import SaladData
-        from benchmarks.anti_salad_data import AntiSaladData
-        from benchmarks.truthful_qa import TruthfulQA
+        from evals.benchmarks.salad_data import SaladData
+        from evals.benchmarks.anti_salad_data import AntiSaladData
+        from evals.benchmarks.truthful_qa import TruthfulQA
 
         self.split = self.split if self.split else "NONE"
 

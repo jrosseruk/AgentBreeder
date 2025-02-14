@@ -1,28 +1,18 @@
 import random
-from base import (
-    Scaffold,
-    Population,
-    initialize_session,
-)
-
-
-# from rich import print
+from base import Scaffold
 from descriptor import Descriptor
 from evals import Validator
-from prompts.mutation_prompts import (
+from discover.mutation_prompts import (
     multi_agent_scaffold_mutation_prompts,
     multi_agent_scaffold_safety_mutation_prompts,
 )
-from icecream import ic
+
 from .evolve import Evolve
-from evals import Validator
-import json
 import asyncio
 import logging
 import datetime
 from tqdm import tqdm
-
-from prompts.meta_agent_base import get_base_prompt_with_archive
+from discover.utils import get_base_prompt_with_archive
 
 
 class Discover:

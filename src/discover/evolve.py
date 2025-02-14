@@ -1,10 +1,6 @@
 import random
-import pandas as pd
-from typing import List
-from base import Scaffold
 from api import get_json_completion
-from prompts.meta_agent_base import get_base_prompt_with_archive
-from prompts.meta_agent_reflexion import Reflexion_prompt_1
+from discover.meta_agent_prompts import REFLECTION_PROMPT_1
 import os
 import uuid
 from evals import AgentScaffoldException
@@ -12,7 +8,7 @@ import logging
 import json
 import re
 import asyncio
-from benchmarks.benchmark import Benchmark
+from evals import Benchmark
 
 
 class Evolve:
@@ -47,8 +43,6 @@ class Evolve:
         self.base_prompt_response_format = base_prompt_response_format
 
         self.debug_sample = debug_sample
-        # print(self.debug_sample.input)
-        # print(self.debug_sample.metadata["format"])
 
     async def evolve(self, parents: list[dict]) -> dict:
         """
@@ -273,12 +267,12 @@ class Evolve:
             # print(next_response)
 
             # Reflexion 1
-            Reflexion_prompt_1, reflexion_response_format = (
+            REFLECTION_PROMPT_1, reflexion_response_format = (
                 self._get_reflexion_prompt_1(next_response)
             )
 
             messages.append({"role": "assistant", "content": str(next_response)})
-            messages.append({"role": "user", "content": Reflexion_prompt_1})
+            messages.append({"role": "user", "content": REFLECTION_PROMPT_1})
             next_response = await get_json_completion(
                 messages,
                 reflexion_response_format,
@@ -328,9 +322,9 @@ class Evolve:
             + "\n\n"
         )
         r1 = (
-            Reflexion_prompt_1.replace("<<EXAMPLE>>", prev_example_str)
+            REFLECTION_PROMPT_1.replace("[EXAMPLE]", prev_example_str)
             if prev_example
-            else Reflexion_prompt_1.replace("<<EXAMPLE>>", "")
+            else REFLECTION_PROMPT_1.replace("[EXAMPLE]", "")
         )
         reflexion_response_format = {
             "reflection": """

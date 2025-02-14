@@ -1,10 +1,10 @@
 from base import Scaffold
 
-from benchmarks.salad_data import SaladData
-from benchmarks.truthful_qa import TruthfulQA
-from benchmarks.anti_salad_data import AntiSaladData
+from .benchmarks.salad_data import SaladData
+from .benchmarks.truthful_qa import TruthfulQA
+from .benchmarks.anti_salad_data import AntiSaladData
 
-from benchmarks import benchmark_registry
+from .benchmark import benchmark_registry
 
 
 class Validator:

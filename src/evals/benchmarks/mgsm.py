@@ -4,11 +4,11 @@ from inspect_ai.model import GenerateConfig
 from inspect_ai.dataset import Dataset
 from typing import Any, Literal, Union
 from textwrap import dedent
-from benchmarks.benchmark import Benchmark, register_benchmark
+from evals.benchmark import Benchmark, register_benchmark
 
 
-@register_benchmark("simple_qa")
-class SimpleQA(Benchmark):
+@register_benchmark("mgsm")
+class MGSM(Benchmark):
 
     def __init__(
         self,
@@ -22,13 +22,13 @@ class SimpleQA(Benchmark):
         self.args = args
 
         split_mapping = {
-            "validation": "test",
+            "validation": "train",
             "test": "test",
         }
 
         self.dataset = self.filtered_hf_dataset(
-            path="basicv8vc/SimpleQA",
-            name="default",
+            path="juletxara/mgsm",
+            name=["bn", "de", "en", "es", "fr", "ja", "ru", "sw", "te", "th", "zh"],
             split=split,
             split_mapping=split_mapping,
             sample_fields=self._record_to_sample,
@@ -42,20 +42,20 @@ class SimpleQA(Benchmark):
         # Construct the main prompt including the question
         question_prompt = dedent(
             f"""
-            Answer the following question:
+            Answer the following maths question:
 
-            {record["problem"]}
+            {record["question"]}
         """
         ).strip()
 
         # Combine question and choices into a single prompt
         prompt = f"{question_prompt}\n\n"
-        output_format = "Provide your final answer as succinctly as possible E.g. a single number, date, or a few words."
+        output_format = "Provide your final answer as a single number."
         prompt += f"OUTPUT ANSWER FORMAT: {output_format}"
 
         return Sample(
             input=prompt,
-            target=str(record["answer"]),
+            target=str(record["answer_number"]),
             metadata={
                 "format": output_format,
                 "answer": record["answer"],
@@ -72,4 +72,20 @@ class SimpleQA(Benchmark):
             solver=self.match_solver(),
             scorer=self.llm_match(),
             config=GenerateConfig(temperature=0.5),
+        )
+
+    @classmethod
+    @property
+    def prompt(self):
+        return dedent(
+            """
+        Your aim is to find an optimal multi-agent scaffold performing well on the Multilingual Grade School Math Benchmark
+        (MGSM) which evaluates mathematical problem-solving abilities across various languages to ensure
+        broad and effective multilingual performance.
+        ## An example question from MGSM:
+        **Question**: この数学の問題を解いてください。
+        近所では、ペットのウサギの数がペットの犬と猫を合わせた数よりも12匹少ない。犬1匹あたり2匹
+        の猫がおり、犬の数は60匹だとすると、全部で近所には何匹のペットがいますか?
+        **Answer (Not Given)**: 348
+        """
         )

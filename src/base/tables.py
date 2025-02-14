@@ -1,16 +1,9 @@
-from sqlalchemy import Column, String, DateTime, ForeignKey, Float, JSON
-from sqlalchemy.orm import relationship
+from sqlalchemy import String, DateTime, ForeignKey, Float, JSON
+from sqlalchemy.orm import relationship, object_session
+from .base import CustomBase, CustomColumn, AutoSaveList
+from .scaffold import Agent, Meeting, Chat
 import datetime
 import uuid
-import random
-import string
-from sqlalchemy.orm import object_session
-from .base import CustomBase, CustomColumn, AutoSaveList
-from api import get_json_completion
-import asyncio
-from functools import wraps
-import threading
-from .scaffold import Agent, Chat, Meeting
 
 
 class Scaffold(CustomBase):

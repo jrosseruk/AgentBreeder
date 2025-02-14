@@ -12,8 +12,8 @@ import warnings
 from sqlalchemy.exc import SAWarning
 
 import time
-from benchmarks.benchmark import benchmark_registry
-from evals import (
+from evals import benchmark_registry
+from evals.benchmarks import (
     SaladData,
     AntiSaladData,
     TruthfulQA,

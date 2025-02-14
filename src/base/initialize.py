@@ -4,7 +4,7 @@ from base import (
     Population,
     initialize_session,
 )
-from prompts.initial_population import (
+from discover.seed_scaffolds import (
     COT,
     COT_SC,
     Reflexion,

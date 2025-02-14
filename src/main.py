@@ -12,7 +12,6 @@ import asyncio
 import datetime
 import warnings
 from sqlalchemy.exc import SAWarning
-from sqlalchemy.orm import joinedload
 import time
 
 
@@ -104,7 +103,7 @@ if __name__ == "__main__":
     parser.add_argument("--random_seed", type=int, default=40)
     parser.add_argument("--n_generation", type=int, default=10)
     parser.add_argument("--n_mutations", type=int, default=5)
-    parser.add_argument("--n_evals", type=int, default=5)
+    parser.add_argument("--n_evals", type=int, default=1)
     parser.add_argument("--debug_max", type=int, default=3)
     parser.add_argument("--mode", type=str, default="ablation")
     parser.add_argument("--model", type=str, default="gpt-4o-mini")

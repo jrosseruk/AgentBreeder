@@ -240,4 +240,7 @@ async def startup_event():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="localhost", port=OPENAI_PORT, log_level="warning")
+    try:
+        uvicorn.run(app, host="localhost", port=OPENAI_PORT, log_level="warning")
+    except Exception as e:
+        logging.error(f"Error starting server: {e}")

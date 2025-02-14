@@ -15,7 +15,7 @@ from inspect_ai.dataset import Sample
 from inspect_ai.model import GenerateConfig
 from inspect_ai.scorer import Score, accuracy, scorer
 from evals.metrics import ci_lower, ci_upper, median
-from benchmarks.benchmark import Benchmark, register_benchmark
+from evals import Benchmark, register_benchmark
 from typing import Any, Literal, Union
 ```
 
@@ -163,7 +163,7 @@ Add custom metrics or evaluation logic as needed in your scorer.
 
 ```python
 import unittest
-from benchmarks.my_benchmark import MyBenchmark
+from evals.benchmarks.my_benchmark import MyBenchmark
 
 class TestMyBenchmark(unittest.TestCase):
     def setUp(self):

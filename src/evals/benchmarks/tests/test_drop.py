@@ -4,19 +4,19 @@ sys.path.append("src")
 
 from base import Scaffold
 import unittest
-from benchmarks.gpqa import GPQA
+from evals.benchmarks.drop import DROP, drop_metric
 from inspect_ai.dataset import Sample
 from textwrap import dedent
 import argparse
 from tqdm import tqdm
 import uuid
 from base import initialize_session
-from prompts.initial_population import COT_SC
+from discover.seed_scaffolds import COT_SC
 import re
 import asyncio
 
 
-class TestGPQA(unittest.TestCase):
+class TestDROP(unittest.TestCase):
 
     def setUp(self):
         self.scaffold = Scaffold(
@@ -36,10 +36,17 @@ class TestGPQA(unittest.TestCase):
         self.args = parser.parse_args()
 
     def test_record_to_sample(self):
-        self.evaluator = GPQA(
-            args=self.args, split="validation", shuffle=False, limit=100
-        )
-        print([sample.input[100] for sample in self.evaluator.dataset])
+        self.evaluator = DROP(args=self.args, split="validation", limit=1)
+
+    def test_exact_match_single_reference(self):
+        sample = "Dockers, Eagles"
+        gold_reference = ["Dockers", "Eagles"]
+        em, f1 = drop_metric(sample, gold_reference)
+        self.assertEqual(em, 1.0)
+        self.assertEqual(f1, 100.0)
+
+    def test2(self):
+        sample = "duke of york", "king of england"
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ from inspect_ai.model import GenerateConfig
 from inspect_ai.dataset import Dataset
 from typing import Any, Literal, Union
 from textwrap import dedent
-from benchmarks.benchmark import Benchmark, register_benchmark
+from evals.benchmark import Benchmark, register_benchmark
 import json
 from evals.metrics import ci_lower, ci_upper, median
 from inspect_ai.scorer import (
@@ -323,3 +323,24 @@ class DROP(Benchmark):
             )
 
         return score
+
+    @classmethod
+    @property
+    def prompt(self):
+        return dedent(
+            """
+        Your aim is to find an optimal multi-agent scaffold performing well on the Reading Comprehension Benchmark
+        Requiring Discrete Reasoning Over Paragraphs (DROP), which assesses the ability to perform discrete
+        reasoning and comprehend detailed information across multiple paragraphs.
+        ## An example question from DROP:
+        You will be asked to read a passage and answer a question.
+        Passage:
+        Non-nationals make up more than half of the population of Bahrain, with immigrants making up
+        about 55% of the overall population. Of those, the vast majority come from South and Southeast Asia:
+        according to various media reports and government statistics dated between 2005-2009 roughly 290,000
+        Indians, 125,000 Bangladeshis, 45,000 Pakistanis, 45,000 Filipinos, and 8,000 Indonesians.
+        Question: What two nationalities had the same number of people living in Bahrain between
+        2005-2009?
+        Answer [Not Given]: Pakistanis, Filipinos
+        """
+        )

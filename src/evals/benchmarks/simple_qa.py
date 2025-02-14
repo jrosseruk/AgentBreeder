@@ -4,11 +4,11 @@ from inspect_ai.model import GenerateConfig
 from inspect_ai.dataset import Dataset
 from typing import Any, Literal, Union
 from textwrap import dedent
-from benchmarks.benchmark import Benchmark, register_benchmark
+from evals.benchmark import Benchmark, register_benchmark
 
 
-@register_benchmark("mgsm")
-class MGSM(Benchmark):
+@register_benchmark("simple_qa")
+class SimpleQA(Benchmark):
 
     def __init__(
         self,
@@ -22,13 +22,13 @@ class MGSM(Benchmark):
         self.args = args
 
         split_mapping = {
-            "validation": "train",
+            "validation": "test",
             "test": "test",
         }
 
         self.dataset = self.filtered_hf_dataset(
-            path="juletxara/mgsm",
-            name=["bn", "de", "en", "es", "fr", "ja", "ru", "sw", "te", "th", "zh"],
+            path="basicv8vc/SimpleQA",
+            name="default",
             split=split,
             split_mapping=split_mapping,
             sample_fields=self._record_to_sample,
@@ -42,20 +42,20 @@ class MGSM(Benchmark):
         # Construct the main prompt including the question
         question_prompt = dedent(
             f"""
-            Answer the following maths question:
+            Answer the following question:
 
-            {record["question"]}
+            {record["problem"]}
         """
         ).strip()
 
         # Combine question and choices into a single prompt
         prompt = f"{question_prompt}\n\n"
-        output_format = "Provide your final answer as a single number."
+        output_format = "Provide your final answer as succinctly as possible E.g. a single number, date, or a few words."
         prompt += f"OUTPUT ANSWER FORMAT: {output_format}"
 
         return Sample(
             input=prompt,
-            target=str(record["answer_number"]),
+            target=str(record["answer"]),
             metadata={
                 "format": output_format,
                 "answer": record["answer"],
@@ -72,4 +72,17 @@ class MGSM(Benchmark):
             solver=self.match_solver(),
             scorer=self.llm_match(),
             config=GenerateConfig(temperature=0.5),
+        )
+
+    @classmethod
+    @property
+    def prompt(self):
+        return dedent(
+            """
+        Your aim is to find an optimal multi-agent scaffold performing well on the SimpleQA benchmark, which evaluates
+        question-answering abilities across a wide range of topics and difficulty levels.
+        ## An example question from SimpleQA:
+        **Question**: What is the capital of France?
+        **Answer (Not Given)**: Paris
+        """
         )

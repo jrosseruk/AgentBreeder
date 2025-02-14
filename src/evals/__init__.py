@@ -1,3 +1,7 @@
 from .validator import Validator
-from benchmarks.benchmark import AgentScaffoldException
-from benchmarks import *
+from .benchmark import (
+    Benchmark,
+    benchmark_registry,
+    register_benchmark,
+    AgentScaffoldException,
+)

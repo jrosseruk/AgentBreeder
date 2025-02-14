@@ -1,18 +1,10 @@
 import argparse
-
 import logging
-
 from base import initialize_session, Population, Scaffold
-
 import os
-import uuid
-import asyncio
-import json
 import warnings
 from sqlalchemy.exc import SAWarning
-
 import time
-
 import pandas as pd
 import numpy as np
 from rich import print

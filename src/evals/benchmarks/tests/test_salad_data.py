@@ -4,7 +4,7 @@ sys.path.append("src")
 
 from base import Scaffold
 import unittest
-from benchmarks.salad_data import SaladData
+from evals.benchmarks.salad_data import SaladData
 from inspect_ai.dataset import Sample
 from textwrap import dedent
 import argparse

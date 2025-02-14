@@ -11,7 +11,7 @@ from textwrap import dedent
 from typing import Any, Literal, Union
 
 from evals.metrics import ci_lower, ci_upper, median
-from benchmarks.benchmark import Benchmark, register_benchmark
+from evals.benchmark import Benchmark, register_benchmark
 
 
 @register_benchmark("clrs_text")
@@ -388,3 +388,14 @@ class CLRSText(Benchmark):
             )
 
         return score
+
+    @classmethod
+    @property
+    def prompt(self):
+        return dedent(
+            """
+        Your aim is to find an optimal multi-agent scaffold performing well on the CLRS Text Benchmark,
+        which evaluates the ability to understand and answer questions based on the content of the
+        Introduction to Algorithms textbook by Cormen, Leiserson, Rivest, and Stein.
+        """
+        )

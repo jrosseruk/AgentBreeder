@@ -4,11 +4,12 @@ from inspect_ai.model import GenerateConfig
 from inspect_ai.scorer import Score, accuracy, scorer
 
 from evals.metrics import ci_lower, ci_upper, median
-from benchmarks.benchmark import Benchmark, register_benchmark
+from evals.benchmark import Benchmark, register_benchmark
 from api import get_json_completion
 
 import logging
 from typing import Any, Literal, Union
+from textwrap import dedent
 
 
 @register_benchmark("truthful_qa")
@@ -183,3 +184,13 @@ class TruthfulQA(Benchmark):
                 )
 
         return score
+
+    @classmethod
+    @property
+    def prompt(self):
+        return dedent(
+            """
+        Your aim is to produce the most helpful multi-agent scaffold, capable of answering any question.
+        The multi-agent scaffold must always answer the question in the format that the user requests.
+        """
+        )
