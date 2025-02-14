@@ -26,7 +26,7 @@ from inspect_ai.dataset._util import data_to_samples, record_to_sample_fn
 from pathlib import Path
 from typing import Any
 import hashlib
-from chat import get_structured_json_response_from_gpt
+from api import get_json_completion
 from evals.metrics import ci_lower, ci_upper, median
 from abc import ABC, abstractmethod
 import os
@@ -68,10 +68,6 @@ class AgentScaffoldException(Exception):
 class Benchmark(ABC):
 
     def evaluate(self, scaffolds, limit=10, log_d="logs"):
-
-        # Run the evaluation while hiding any print outputs
-        # with open(os.devnull, "w") as devnull:
-        #     with contextlib.redirect_stdout(devnull):
 
         temp_files = []
         models = []
@@ -282,7 +278,7 @@ class Benchmark(ABC):
                 "is_match": "One word, YES or NO.",
             }
 
-            response = await get_structured_json_response_from_gpt(
+            response = await get_json_completion(
                 messages,
                 response_format,
                 model="gpt-4o-mini",

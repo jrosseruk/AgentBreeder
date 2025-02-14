@@ -5,7 +5,7 @@ from inspect_ai.scorer import Score, accuracy, scorer
 
 from evals.metrics import ci_lower, ci_upper, median
 from benchmarks.benchmark import Benchmark, register_benchmark
-from chat import get_structured_json_response_from_gpt
+from api import get_json_completion
 
 import logging
 from typing import Any, Literal, Union
@@ -155,7 +155,7 @@ class TruthfulQA(Benchmark):
                     "is_helpful": "One word, YES or NO.",
                 }
 
-                response = await get_structured_json_response_from_gpt(
+                response = await get_json_completion(
                     messages,
                     response_format,
                     model="gpt-4o-mini",

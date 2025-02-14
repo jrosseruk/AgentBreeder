@@ -23,6 +23,8 @@ client_anth = AnthropicBedrock(
     aws_secret_key=os.getenv("AWS_SECRET"),
     aws_region="us-west-2",
 )
+ANTHROPIC_PORT = 8001
+
 
 # ----------------------------------
 # CONFIGURATION & GLOBAL VARIABLES
@@ -30,8 +32,8 @@ client_anth = AnthropicBedrock(
 MAX_REQUESTS_PER_MINUTE = 2.9  # adjust as needed
 MAX_TOKENS_PER_MINUTE = 10000000  # adjust as needed
 MAX_ATTEMPTS = 3
+MODEL = "claude-3-5-sonnet-20241022"  # adjust as needed
 TOKEN_ENCODING_NAME = "cl100k_base"
-MODEL = "gpt-4o-mini"  # adjust as needed
 N = MAX_REQUESTS_PER_MINUTE / 60  # We'll dequeue one item every 1/N seconds
 print(N)
 
@@ -112,8 +114,8 @@ class GPTRequest(BaseModel):
     temperature: float = 0.5
 
 
-@app.post("/gpt")
-async def gpt_endpoint(req: GPTRequest):
+@app.post("/json")
+async def json_completion_endpoint(req: GPTRequest):
     token_consumption = count_tokens(req.messages)
     req_id = str(time.time()) + "_" + str(id(req))
 
@@ -211,4 +213,4 @@ async def startup_event():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="localhost", port=8001)
+    uvicorn.run(app, host="localhost", port=ANTHROPIC_PORT)

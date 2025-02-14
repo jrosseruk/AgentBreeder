@@ -25,8 +25,8 @@ current_directory = os.path.dirname(os.path.abspath(__file__))
 higher_directory = os.path.dirname(current_directory)
 
 Agent_code = extract_class_code(f"{higher_directory}/base/scaffold.py", "Agent")
-get_structured_json_response_from_gpt_code = extract_function_code(
-    f"{higher_directory}/chat/chat.py", "get_structured_json_response_from_gpt"
+get_json_completion_code = extract_function_code(
+    f"{higher_directory}/chat/chat.py", "get_json_completion"
 )
 
 prompt_base = """# Overview
@@ -53,7 +53,7 @@ from utils import random_id
 # Initialize the OpenAI client
 client = openai.OpenAI()
 
-{{get_structured_json_response_from_gpt_code}}
+{{get_json_completion_code}}
 
 {{Agent_code}}
 

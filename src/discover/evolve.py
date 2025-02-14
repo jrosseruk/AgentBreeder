@@ -2,7 +2,7 @@ import random
 import pandas as pd
 from typing import List
 from base import Scaffold
-from chat import get_structured_json_response_from_gpt
+from api import get_json_completion
 from prompts.meta_agent_base import get_base_prompt_with_archive
 from prompts.meta_agent_reflexion import Reflexion_prompt_1
 import os
@@ -15,7 +15,7 @@ import asyncio
 from benchmarks.benchmark import Benchmark
 
 
-class Mutator:
+class Evolve:
 
     def __init__(
         self,
@@ -27,7 +27,7 @@ class Mutator:
         debug_sample,
     ) -> None:
         """
-        Initializes the Mutator class.
+        Initializes the Evolve class.
 
         Args:
             args: Arguments object containing configurations for the mutator, such
@@ -35,7 +35,7 @@ class Mutator:
 
             population: The population of scaffolds for mutation.
             mutation_operators: A list of mutation operator strings to apply.
-            evaluator: An evaluator object for validating and testing mutated scaffolds.
+            evaluator: An evaluator object for validating and testing evolved scaffolds.
         """
 
         self.mutation_operators = mutation_operators
@@ -50,7 +50,7 @@ class Mutator:
         # print(self.debug_sample.input)
         # print(self.debug_sample.metadata["format"])
 
-    async def mutate(self, parents: list[dict]) -> dict:
+    async def evolve(self, parents: list[dict]) -> dict:
         """
         Applies a mutation to a given scaffold.
 
@@ -263,7 +263,7 @@ class Mutator:
         # Generate new solution and do reflection
         try:
 
-            next_response: dict[str, str] = await get_structured_json_response_from_gpt(
+            next_response: dict[str, str] = await get_json_completion(
                 messages,
                 self.base_prompt_response_format,
                 model="anthropic.claude-3-5-sonnet-20241022-v2:0",
@@ -279,7 +279,7 @@ class Mutator:
 
             messages.append({"role": "assistant", "content": str(next_response)})
             messages.append({"role": "user", "content": Reflexion_prompt_1})
-            next_response = await get_structured_json_response_from_gpt(
+            next_response = await get_json_completion(
                 messages,
                 reflexion_response_format,
                 model="gpt-4o",
@@ -293,7 +293,7 @@ class Mutator:
             """
             messages.append({"role": "assistant", "content": str(next_response)})
             messages.append({"role": "user", "content": Reflexion_prompt_2})
-            next_response = await get_structured_json_response_from_gpt(
+            next_response = await get_json_completion(
                 messages,
                 reflexion_response_format,
                 model="gpt-4o",
@@ -423,7 +423,7 @@ class Mutator:
                     }
                 )
                 try:
-                    next_response = await get_structured_json_response_from_gpt(
+                    next_response = await get_json_completion(
                         messages,
                         reflexion_response_format,
                         model=self.args.model,

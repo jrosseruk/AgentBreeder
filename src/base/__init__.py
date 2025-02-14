@@ -10,3 +10,5 @@ from .session import (
     initialize_session,
     Wrapper,
 )
+
+from .initialize import initialize_population_id

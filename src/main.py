@@ -1,11 +1,10 @@
 import argparse
 import random
-from concurrent.futures import ThreadPoolExecutor
 import logging
 from tqdm import tqdm
-from generator import initialize_population_id, Generator
+from discover import Discover
 from descriptor import Clusterer
-from base import initialize_session, Population, Scaffold
+from base import initialize_session, Population, Scaffold, initialize_population_id
 from evals import Validator
 import os
 import uuid
@@ -71,7 +70,7 @@ def main(args, population_id=None):
                 session.query(Population).filter_by(population_id=population_id).one()
             )
 
-            generator = Generator(args, population, debug_sample)
+            generator = Discover(args, population, debug_sample)
 
             # Generate a new batch of mutants
             asyncio.run(generator.run_generation(session))

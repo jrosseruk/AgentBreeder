@@ -1,7 +1,7 @@
-# Guide: Implementing a New Benchmark in the Framework
+# Guide: Implementing a New Benchmark
 
 ## Overview
-This guide explains how to create a new benchmark class in the benchmark framework. The framework is designed to evaluate model performance on different tasks using a consistent interface.
+This guide explains how to create a new benchmark class in AgentBreeder. The framework is designed to evaluate model performance on different tasks using a consistent interface.
 
 ## Step 1: Create a New Benchmark File
 

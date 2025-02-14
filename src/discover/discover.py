@@ -14,7 +14,7 @@ from prompts.mutation_prompts import (
     multi_agent_scaffold_safety_mutation_prompts,
 )
 from icecream import ic
-from .mutator import Mutator
+from .evolve import Evolve
 from evals import Validator
 import json
 import asyncio
@@ -25,11 +25,11 @@ from tqdm import tqdm
 from prompts.meta_agent_base import get_base_prompt_with_archive
 
 
-class Generator:
+class Discover:
 
     def __init__(self, args, population, debug_sample) -> None:
         """
-        Initializes the Generator class.
+        Initializes the Discover class.
 
         Args:
             args: Arguments object containing configurations for the generator.
@@ -53,13 +53,13 @@ class Generator:
         self.base_prompt = None
         self.base_prompt_response_format = None
 
-    async def generate_mutant(
+    async def generate_offspring(
         self,
         parents,
     ):
 
         try:
-            mutator = Mutator(
+            evolver = Evolve(
                 self.args,
                 self.mutation_operators,
                 self.validator,
@@ -67,14 +67,14 @@ class Generator:
                 self.base_prompt_response_format,
                 self.debug_sample,
             )
-            # Create a new Generator instance per task
-            mutant_scaffold = await mutator.mutate(parents)
+            # Create a new Discover instance per task
+            offspring_scaffold = await evolver.evolve(parents)
 
         except Exception as e:
-            logging.error(f"Error generating mutant: {e}")
-            mutant_scaffold = None
+            logging.error(f"Error generating offspring: {e}")
+            offspring_scaffold = None
 
-        return mutant_scaffold
+        return offspring_scaffold
 
     async def run_generation(self, session):
 
@@ -102,7 +102,7 @@ class Generator:
 
         # Create tasks for all mutations
         tasks = [
-            asyncio.create_task(self.generate_mutant(parents[i]))
+            asyncio.create_task(self.generate_offspring(parents[i]))
             for i in range(self.args.n_mutations)
         ]
 

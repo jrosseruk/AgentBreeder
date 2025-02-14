@@ -19,6 +19,7 @@ httpx_logger.setLevel(logging.WARNING)
 
 load_dotenv(override=True)
 client = openai.OpenAI()
+OPENAI_PORT = 8000
 
 
 # ----------------------------------
@@ -140,8 +141,8 @@ class GPTRequest(BaseModel):
     temperature: float = 0.5
 
 
-@app.post("/gpt")
-async def gpt_endpoint(req: GPTRequest):
+@app.post("/json")
+async def json_completion_endpoint(req: GPTRequest):
     token_consumption = count_tokens(req.messages)
     req_id = str(time.time()) + "_" + str(id(req))
 
@@ -239,4 +240,4 @@ async def startup_event():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="localhost", port=8000, log_level="warning")
+    uvicorn.run(app, host="localhost", port=OPENAI_PORT, log_level="warning")

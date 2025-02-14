@@ -4,9 +4,9 @@ import random
 from concurrent.futures import ThreadPoolExecutor
 import logging
 from tqdm import tqdm
-from generator import initialize_population_id, Generator
+from discover import Discover
 from descriptor import Clusterer
-from base import initialize_session, Population, Scaffold
+from base import initialize_session, Population, Scaffold, initialize_population_id
 from evals import Validator
 import os
 import uuid

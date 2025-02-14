@@ -2,7 +2,7 @@ from datetime import datetime
 import uuid
 import random
 import string
-from chat import get_structured_json_response_from_gpt
+from api import get_json_completion
 
 
 class Meeting:
@@ -78,7 +78,7 @@ class Agent:
     async def forward(self, response_format: dict):
         # Simulate async response handling
         messages = self.chat_history
-        response_json = await get_structured_json_response_from_gpt(
+        response_json = await get_json_completion(
             messages=messages,
             response_format=response_format,
             temperature=self.temperature,

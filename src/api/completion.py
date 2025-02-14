@@ -6,20 +6,21 @@ import logging
 from dotenv import load_dotenv
 import os
 import asyncio
+from .anthropic_api import ANTHROPIC_PORT
+from .openai_api import OPENAI_PORT
 
 load_dotenv(override=True)
-# client = openai.OpenAI()
 import httpx
 
 
 client = httpx.AsyncClient()
-URL = "http://localhost:8000/gpt"
-CLAUDE_URL = "http://localhost:8001/gpt"
+OPENAI_URL = f"http://localhost:{OPENAI_PORT}/json"
+CLAUDE_URL = f"http://localhost:{ANTHROPIC_PORT}/json"
 
 # https://github.com/openai/openai-cookbook/blob/main/examples/api_request_parallel_processor.py
 
 
-async def get_structured_json_response_from_gpt(
+async def get_json_completion(
     messages, response_format, model="gpt-4o-mini", temperature=0.5, retry=0
 ) -> dict:
     payload = {
@@ -31,7 +32,7 @@ async def get_structured_json_response_from_gpt(
     if "claude" in model:
         url = CLAUDE_URL
     else:
-        url = URL
+        url = OPENAI_URL
 
     try:
         async with httpx.AsyncClient() as client:
@@ -47,7 +48,7 @@ async def get_structured_json_response_from_gpt(
 
 
 async def main():
-    response = await get_structured_json_response_from_gpt(
+    response = await get_json_completion(
         messages=[
             {
                 "role": "user",

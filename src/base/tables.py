@@ -6,7 +6,7 @@ import random
 import string
 from sqlalchemy.orm import object_session
 from .base import CustomBase, CustomColumn, AutoSaveList
-from chat import get_structured_json_response_from_gpt
+from api import get_json_completion
 import asyncio
 from functools import wraps
 import threading

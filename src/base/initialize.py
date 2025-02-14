@@ -14,16 +14,10 @@ from prompts.initial_population import (
     Role_Assignment,
 )
 
-# from rich import print
-from descriptor import Descriptor
+from descriptor import Descriptor, Clusterer
 from evals import Validator
 
-from evals import Validator
-from descriptor import Clusterer
-import asyncio
-import logging
 import datetime
-import copy
 
 
 def initialize_population_id(args) -> str:
