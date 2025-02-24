@@ -4,7 +4,6 @@ import os
 import glob
 from datetime import datetime
 from rich import print
-import time
 
 
 def find_all_baseline_files(validation_dir, Benchmark):
@@ -39,14 +38,11 @@ def find_all_baseline_files(validation_dir, Benchmark):
         print(f"Timestamp format error: {e}")
         return []
 
-    # print(timestamp_dirs_sorted)
-
     for latest_timestamp_dir in timestamp_dirs_sorted:
 
         latest_timestamp_path = os.path.join(validation_dir, latest_timestamp_dir)
         print(f"Latest timestamp directory: {latest_timestamp_dir}")
 
-        # Step 3: Within the latest timestamp directory, find all {Benchmark}-<id> directories
         math_dirs = [
             d
             for d in os.listdir(latest_timestamp_path)
@@ -63,8 +59,6 @@ def find_all_baseline_files(validation_dir, Benchmark):
         else:
             print(f"Found {len(math_dirs)} '{Benchmark}-' directories.")
             break
-
-    # time.sleep(5)
 
     # Step 4: Collect all JSON files in each {Benchmark}-<id>/logs/ directory
     all_math_files = []

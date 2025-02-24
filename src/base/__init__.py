@@ -1,6 +1,6 @@
 from .session import (
     Chat,
-    System,
+    Scaffold,
     Cluster,
     Generation,
     Population,
@@ -10,3 +10,5 @@ from .session import (
     initialize_session,
     Wrapper,
 )
+
+from .initialize import initialize_population_id

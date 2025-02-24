@@ -11,7 +11,7 @@ logs/
 *logs
 *db/
 db/
-
+*results/
 *.eval
 *temp/
 *baselines/

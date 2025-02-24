@@ -1,30 +1,10 @@
 import argparse
-
 import logging
-
-from base import initialize_session, Population, System
-
+from base import initialize_session, Population, Scaffold
 import os
-import uuid
-import asyncio
-import json
 import warnings
 from sqlalchemy.exc import SAWarning
-
 import time
-from evals import (
-    CLRSText,
-    MMLU,
-    ARC,
-    GPQA,
-    DROP,
-    MGSM,
-    SaladData,
-    AntiSaladData,
-    TruthfulQA,
-    SimpleQA,
-    Math500,
-)
 import pandas as pd
 import numpy as np
 from rich import print
@@ -80,16 +60,18 @@ if __name__ == "__main__":
 
             print(population_id, population.population_benchmark)
 
-            systems = session.query(System).filter_by(population_id=population_id).all()
+            scaffolds = (
+                session.query(Scaffold).filter_by(population_id=population_id).all()
+            )
 
-            # do chunks of 20 systems at a time
+            # do chunks of 20 scaffolds at a time
 
-            # reverse the systems list:
-            systems = systems[::-1]
+            # reverse the scaffolds list:
+            scaffolds = scaffolds[::-1]
 
-            for i in range(0, len(systems), 20):
-                systems_chunk = systems[i : i + 20]
+            for i in range(0, len(scaffolds), 20):
+                scaffolds_chunk = scaffolds[i : i + 20]
 
                 validator = Validator(args)
 
-                validator.validate(systems_chunk)
+                validator.validate(scaffolds_chunk)

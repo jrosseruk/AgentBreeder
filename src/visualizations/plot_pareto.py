@@ -4,7 +4,7 @@ sys.path.append("src")
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-from base import initialize_session, System, Population
+from base import initialize_session, Scaffold, Population
 import random
 from collections import OrderedDict
 
@@ -40,26 +40,26 @@ def compute_pareto_frontier(df, maximize_x=True, maximize_y=True):
     return pd.DataFrame(pareto_front)
 
 
-def plot_pareto_frontiers(systems):
+def plot_pareto_frontiers(scaffolds):
     """
     Plots Pareto frontiers (median safety vs median capability) and all points for each generation.
 
     Parameters:
-    - systems: List of System objects containing the necessary attributes.
+    - scaffolds: List of Scaffold objects containing the necessary attributes.
     """
-    # Step 1: Extract Relevant Data from Systems
+    # Step 1: Extract Relevant Data from Scaffolds
     data = []
-    for system in systems:
+    for scaffold in scaffolds:
         if (
-            not system.system_capability_ci_median
-            or system.system_capability_ci_median == 0
+            not scaffold.scaffold_capability_ci_median
+            or scaffold.scaffold_capability_ci_median == 0
         ):
-            continue  # Skip systems with median capability of 0
+            continue  # Skip scaffolds with median capability of 0
         data.append(
             {
-                "generation_timestamp": system.generation_timestamp,
-                "median_capability": system.system_capability_ci_median,
-                "median_safety": system.system_safety_ci_median,
+                "generation_timestamp": scaffold.generation_timestamp,
+                "median_capability": scaffold.scaffold_capability_ci_median,
+                "median_safety": scaffold.scaffold_safety_ci_median,
             }
         )
 
@@ -105,7 +105,7 @@ def plot_pareto_frontiers(systems):
             jittered_y,
             color=color,
             alpha=0.7,
-            label=f"Generation {gen} - Systems",
+            label=f"Generation {gen} - Scaffolds",
             edgecolor="k",
             s=50,
         )
@@ -130,7 +130,7 @@ def plot_pareto_frontiers(systems):
     # Customize Plot
     plt.xlabel("Median Capability", fontsize=14)
     plt.ylabel("Median Safety", fontsize=14)
-    plt.title("Pareto Frontiers and Systems by Generation", fontsize=16)
+    plt.title("Pareto Frontiers and Scaffolds by Generation", fontsize=16)
 
     # Set axis limits to [0, 1] for both x and y axes
     plt.xlim(0, 1)
@@ -160,10 +160,10 @@ if __name__ == "__main__":
 
         # population_id = "32d56f21-dbda-44d9-9d99-980b7eae9898"
 
-        # Suppose you have a list of systems from your DB:
-        systems = session.query(System).filter_by(population_id=population_id).all()
-        print(len(systems))
-        print(systems[0])
+        # Suppose you have a list of scaffolds from your DB:
+        scaffolds = session.query(Scaffold).filter_by(population_id=population_id).all()
+        print(len(scaffolds))
+        print(scaffolds[0])
         print(population_id)
 
-        plot_pareto_frontiers(systems)
+        plot_pareto_frontiers(scaffolds)

@@ -9,14 +9,14 @@ from umap import UMAP
 import plotly.express as px
 import plotly.graph_objects as go
 from sqlalchemy.orm import Session
-from base import initialize_session, System, Population
+from base import initialize_session, Scaffold, Population
 
 
 class Visualizer:
     def plot(self, session: Session, population_id: str):
         """
         Plots the clusters in 3D for a given population using UMAP for dimensionality reduction.
-        Hovering over a point displays the multi-agent system name, system ID, and fitness.
+        Hovering over a point displays the multi-agent scaffold name, scaffold ID, and fitness.
         Points have larger diameters if their fitness is higher (fitness ranges from -1 to 1).
         The plot is set to dark mode with no background walls, axes, or axes labels.
 
@@ -25,36 +25,36 @@ class Visualizer:
         - population_id: The unique identifier (UUID) of the population.
         """
 
-        # Fetch all systems associated with the population
-        systems = session.query(System).filter_by(population_id=population_id).all()
-        print("Number of systems fetched:", len(systems))
+        # Fetch all scaffolds associated with the population
+        scaffolds = session.query(Scaffold).filter_by(population_id=population_id).all()
+        print("Number of scaffolds fetched:", len(scaffolds))
 
         # Lists to store embeddings and other data
         embeddings = []
         cluster_ids = []
-        system_names = []
-        system_ids = []
+        scaffold_names = []
+        scaffold_ids = []
         fitness_values = []
 
         # Count number of unique cluster_ids
-        cluster_id_set = {fw.cluster_id for fw in systems if fw.cluster_id}
+        cluster_id_set = {fw.cluster_id for fw in scaffolds if fw.cluster_id}
         print("Number of unique clusters:", len(cluster_id_set))
 
         # Use a random UUID to replace None cluster IDs
         null_cluster_id = str(uuid.uuid4())
 
-        for fw in systems:
-            if fw.system_descriptor:
-                # Assuming system_descriptor is a list of floats
-                embedding = fw.system_descriptor
+        for fw in scaffolds:
+            if fw.scaffold_descriptor:
+                # Assuming scaffold_descriptor is a list of floats
+                embedding = fw.scaffold_descriptor
                 cluster_id = fw.cluster_id if fw.cluster_id else null_cluster_id
-                fitness = fw.system_fitness if fw.system_fitness is not None else -1
+                fitness = fw.scaffold_fitness if fw.scaffold_fitness is not None else -1
 
                 if embedding and cluster_id and (fitness is not None):
                     embeddings.append(embedding)
                     cluster_ids.append(cluster_id)
-                    system_names.append(fw.system_name)
-                    system_ids.append(fw.system_id)
+                    scaffold_names.append(fw.scaffold_name)
+                    scaffold_ids.append(fw.scaffold_id)
                     fitness_values.append(fitness)
 
         # Convert lists to numpy arrays
@@ -99,8 +99,8 @@ class Visualizer:
                 "UMAP3": embeddings_3d[:, 2],
                 "Cluster": cluster_ids,
                 "Cluster_Label": cluster_labels,
-                "System Name": system_names,
-                "System ID": system_ids,
+                "Scaffold Name": scaffold_names,
+                "Scaffold ID": scaffold_ids,
                 "Fitness": fitness_values,
                 "Size": sizes,
             }
@@ -114,7 +114,7 @@ class Visualizer:
             z="UMAP3",
             color="Cluster_Label",
             size="Size",
-            hover_data=["System Name", "System ID", "Cluster", "Fitness"],
+            hover_data=["Scaffold Name", "Scaffold ID", "Cluster", "Fitness"],
             color_continuous_scale="Rainbow",
             title=f"3D UMAP Cluster Plot for Population {population_id}",
             labels={"color": "Cluster"},
@@ -139,19 +139,19 @@ class Visualizer:
         # --------------------------------------------------------------------
         #  Add lines (edges) from child to parent(s), colored by parent's cluster
         # --------------------------------------------------------------------
-        # 1) Create dictionaries for quick lookup: system_id -> (x, y, z) coords
-        #    and system_id -> cluster_label
-        system_id_to_coords = {}
-        system_id_to_cluster_label = {}
+        # 1) Create dictionaries for quick lookup: scaffold_id -> (x, y, z) coords
+        #    and scaffold_id -> cluster_label
+        scaffold_id_to_coords = {}
+        scaffold_id_to_cluster_label = {}
 
         for i in range(len(df)):
-            sid = df.loc[i, "System ID"]
-            system_id_to_coords[sid] = (
+            sid = df.loc[i, "Scaffold ID"]
+            scaffold_id_to_coords[sid] = (
                 df.loc[i, "UMAP1"],
                 df.loc[i, "UMAP2"],
                 df.loc[i, "UMAP3"],
             )
-            system_id_to_cluster_label[sid] = df.loc[i, "Cluster_Label"]
+            scaffold_id_to_cluster_label[sid] = df.loc[i, "Cluster_Label"]
 
         # 2) We'll use the same "Rainbow" color scale that the scatter uses.
         #    For convenience, we can sample from plotly's built-in scales.
@@ -171,18 +171,18 @@ class Visualizer:
             return sample_colorscale("Rainbow", frac)[0]  # returns an RGBA string
 
         # 3) Add a 3D line trace for each (child -> parent) relationship
-        #    Each system can have up to two parents (system_first_parent_id, system_second_parent_id).
-        for system in systems:
-            child_id = system.system_id
-            child_coords = system_id_to_coords.get(child_id)
+        #    Each scaffold can have up to two parents (scaffold_first_parent_id, scaffold_second_parent_id).
+        for scaffold in scaffolds:
+            child_id = scaffold.scaffold_id
+            child_coords = scaffold_id_to_coords.get(child_id)
 
             if child_coords:
                 # Handle first parent
-                if system.system_first_parent_id is not None:
-                    parent_id = system.system_first_parent_id
-                    parent_coords = system_id_to_coords.get(parent_id)
+                if scaffold.scaffold_first_parent_id is not None:
+                    parent_id = scaffold.scaffold_first_parent_id
+                    parent_coords = scaffold_id_to_coords.get(parent_id)
                     if parent_coords:
-                        parent_label = system_id_to_cluster_label.get(parent_id, 0)
+                        parent_label = scaffold_id_to_cluster_label.get(parent_id, 0)
                         color_line = get_line_color(parent_label)
 
                         fig.add_trace(
@@ -198,11 +198,11 @@ class Visualizer:
                         )
 
                 # Handle second parent
-                if system.system_second_parent_id is not None:
-                    parent_id = system.system_second_parent_id
-                    parent_coords = system_id_to_coords.get(parent_id)
+                if scaffold.scaffold_second_parent_id is not None:
+                    parent_id = scaffold.scaffold_second_parent_id
+                    parent_coords = scaffold_id_to_coords.get(parent_id)
                     if parent_coords:
-                        parent_label = system_id_to_cluster_label.get(parent_id, 0)
+                        parent_label = scaffold_id_to_cluster_label.get(parent_id, 0)
                         color_line = get_line_color(parent_label)
 
                         fig.add_trace(

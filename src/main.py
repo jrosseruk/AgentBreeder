@@ -1,11 +1,10 @@
 import argparse
 import random
-from concurrent.futures import ThreadPoolExecutor
 import logging
 from tqdm import tqdm
-from generator import initialize_population_id, Generator
+from discover import Discover
 from descriptor import Clusterer
-from base import initialize_session, Population, System
+from base import initialize_session, Population, Scaffold, initialize_population_id
 from evals import Validator
 import os
 import uuid
@@ -13,7 +12,6 @@ import asyncio
 import datetime
 import warnings
 from sqlalchemy.exc import SAWarning
-from sqlalchemy.orm import joinedload
 import time
 
 
@@ -51,14 +49,14 @@ def main(args, population_id=None):
             clusterer.cluster(population)
             # assert 1 == 2
 
-            # Only choose systems which haven't been validated yet (e.g. system_fitness=None)
-            systems_for_validation = (
-                session.query(System)
-                .filter_by(population_id=population_id, system_fitness=None)
-                .order_by(System.system_timestamp.desc())
+            # Only choose scaffolds which haven't been validated yet (e.g. scaffold_fitness=None)
+            scaffolds_for_validation = (
+                session.query(Scaffold)
+                .filter_by(population_id=population_id, scaffold_fitness=None)
+                .order_by(Scaffold.scaffold_timestamp.desc())
                 .all()[:10]
             )
-            validator.validate(systems_for_validation)
+            validator.validate(scaffolds_for_validation)
 
             print(f"Reloaded population ID: {population.population_id}")
 
@@ -71,7 +69,7 @@ def main(args, population_id=None):
                 session.query(Population).filter_by(population_id=population_id).one()
             )
 
-            generator = Generator(args, population, debug_sample)
+            generator = Discover(args, population, debug_sample)
 
             # Generate a new batch of mutants
             asyncio.run(generator.run_generation(session))
@@ -79,15 +77,15 @@ def main(args, population_id=None):
             # Recluster the population
             clusterer.cluster(population)
 
-            # Only choose systems which haven't been validated yet (e.g. system_fitness=None)
-            systems_for_validation = (
-                session.query(System)
-                .filter_by(population_id=population_id, system_fitness=None)
+            # Only choose scaffolds which haven't been validated yet (e.g. scaffold_fitness=None)
+            scaffolds_for_validation = (
+                session.query(Scaffold)
+                .filter_by(population_id=population_id, scaffold_fitness=None)
                 .all()
             )
 
             validator = Validator(args)
-            validator.validate(systems_for_validation)
+            validator.validate(scaffolds_for_validation)
 
             session.commit()
 
@@ -104,8 +102,8 @@ if __name__ == "__main__":
     parser.add_argument("--log_timestamp", type=str, default=log_timestamp_str)
     parser.add_argument("--random_seed", type=int, default=40)
     parser.add_argument("--n_generation", type=int, default=10)
-    parser.add_argument("--n_mutations", type=int, default=10)
-    parser.add_argument("--n_evals", type=int, default=100)
+    parser.add_argument("--n_mutations", type=int, default=5)
+    parser.add_argument("--n_evals", type=int, default=1)
     parser.add_argument("--debug_max", type=int, default=3)
     parser.add_argument("--mode", type=str, default="ablation")
     parser.add_argument("--model", type=str, default="gpt-4o-mini")
@@ -137,7 +135,7 @@ if __name__ == "__main__":
     #     # try:
     #     args.benchmark = benchmark
 
-    args.population_id = "cfda0d48-e4aa-439b-a348-b1433d27d344"
+    # args.population_id = "cfda0d48-e4aa-439b-a348-b1433d27d344"
 
     population_id = args.population_id
     # population_id = "last"

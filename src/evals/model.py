@@ -8,14 +8,10 @@ from inspect_ai.model._model_output import ModelOutput
 from inspect_ai.tool import ToolInfo, ToolChoice
 from inspect_ai.model._registry import modelapi
 
-import importlib.util
-import os
-import re
-import uuid
 import logging
 import asyncio
 
-from base import System
+from base import Scaffold
 
 
 @modelapi(name="agntbrdr")
@@ -32,18 +28,18 @@ class CustomModelAPI(ModelAPI):
         api_key: str | None = None,
         api_key_vars: list[str] = [],
         config: GenerateConfig = GenerateConfig(),
-        system: System = None,
+        scaffold: Scaffold = None,
         temp_file: str = None,
-        agent_system: callable = None,
+        agent_scaffold: callable = None,
         **model_args: Any,
     ) -> None:
         # IMPORTANT: call super() so Inspect sets up the registry info correctly
         super().__init__(model_name, base_url, api_key, api_key_vars, config)
 
-        self.system = system
+        self.scaffold = scaffold
         self.temp_file = temp_file
-        self.agent_system = agent_system
-        self.forward_function = self.system.system_code
+        self.agent_scaffold = agent_scaffold
+        self.forward_function = self.scaffold.scaffold_code
 
     async def generate(
         self,
@@ -83,9 +79,9 @@ class CustomModel(Model):
         """
 
         try:
-            if "return await self.forward" in self.api.system.system_code:
+            if "return await self.forward" in self.api.scaffold.scaffold_code:
                 raise Exception("Infinite loop detected")
-            agentSystem = self.api.agent_system()
+            agentScaffold = self.api.agent_scaffold()
             # Set a timeout of 3 minutes (180 seconds)
             if isinstance(input, list):
                 input = input[0].content
@@ -96,7 +92,7 @@ class CustomModel(Model):
             # print(required_answer_format)
 
             output = await asyncio.wait_for(
-                agentSystem.forward(task_input, required_answer_format), timeout=720
+                agentScaffold.forward(task_input, required_answer_format), timeout=720
             )
             output = str(output)
 

@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
 
 from dotenv import load_dotenv
-from base import System
+from base import Scaffold
 import numpy as np
 
 load_dotenv(override=True)
@@ -24,37 +24,37 @@ class Descriptor:
         self.model = model
         self.output_dim = output_dim
 
-    def batch_generate(self, systems: list[System]):
+    def batch_generate(self, scaffolds: list[Scaffold]):
         """
-        Generates embeddings for a batch of systems using threading.
+        Generates embeddings for a batch of scaffolds using threading.
 
         Args:
-            systems (list[System]): A list of system objects for which embeddings will be generated.
+            scaffolds (list[Scaffold]): A list of scaffold objects for which embeddings will be generated.
 
         Returns:
-            np.ndarray: A NumPy array containing the embeddings for all systems in the batch.
+            np.ndarray: A NumPy array containing the embeddings for all scaffolds in the batch.
         """
         with ThreadPoolExecutor(max_workers=16) as executor:
             embeddings = list(
                 tqdm(
-                    executor.map(self.generate, systems),
-                    total=len(systems),
+                    executor.map(self.generate, scaffolds),
+                    total=len(scaffolds),
                     desc="Generating embeddings",
                 )
             )
         return np.array(embeddings)
 
-    def generate(self, system: System):
+    def generate(self, scaffold: Scaffold):
         """
-        Generates an embedding for a single system.
+        Generates an embedding for a single scaffold.
 
         Args:
-            system (System): The system object for which the embedding will be generated.
+            scaffold (Scaffold): The scaffold object for which the embedding will be generated.
 
         Returns:
-            list[float]: The embedding vector for the given system.
+            list[float]: The embedding vector for the given scaffold.
         """
-        text = system.system_name + ": " + "\n" + system.system_code
+        text = scaffold.scaffold_name + ": " + "\n" + scaffold.scaffold_code
         response = self.client.embeddings.create(
             input=text, model=self.model, dimensions=self.output_dim
         )

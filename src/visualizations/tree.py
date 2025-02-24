@@ -9,28 +9,28 @@ import itertools
 import matplotlib.pyplot as plt
 import networkx as nx
 from collections import defaultdict, deque
-from base import initialize_session, System, Population
+from base import initialize_session, Scaffold, Population
 import matplotlib.colors as mcolors
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
 
-def plot_tree(systems):
+def plot_tree(scaffolds):
     """
-    Plot a multi-layer graph from a list of System objects.
+    Plot a multi-layer graph from a list of Scaffold objects.
     Each unique 'generation_timestamp' becomes its own layer.
     Each 'cluster_id' is represented by a different color.
-    Node labels are shown as 'system_name' rather than 'system_id'.
-    Node sizes are proportional to system_capability_ci_median (0 to 1).
-    If a node has system_capability_ci_median = -1 or None, treat it as 0.
+    Node labels are shown as 'scaffold_name' rather than 'scaffold_id'.
+    Node sizes are proportional to scaffold_capability_ci_median (0 to 1).
+    If a node has scaffold_capability_ci_median = -1 or None, treat it as 0.
 
     Labels for each layer are alternately drawn above and below nodes
     to reduce overlap of long names.
     """
 
     # 1. Collect and sort the distinct generation timestamps
-    unique_gen_timestamps = sorted({s.generation_timestamp for s in systems})
+    unique_gen_timestamps = sorted({s.generation_timestamp for s in scaffolds})
 
     # 2. Map each timestamp to an integer "layer" index
     timestamp_to_layer = {
@@ -41,30 +41,36 @@ def plot_tree(systems):
     G = nx.Graph()
 
     # 4. Add nodes with layer, cluster_id, and fitness attributes
-    for sys in systems:
+    for sys in scaffolds:
         # Handle fitness edge cases
         if (
-            sys.system_capability_ci_median is None
-            or sys.system_capability_ci_median == -1
+            sys.scaffold_capability_ci_median is None
+            or sys.scaffold_capability_ci_median == -1
         ):
             fitness_val = 0.0
         else:
-            fitness_val = sys.system_capability_ci_median  # assumed in [0, 1]
+            fitness_val = sys.scaffold_capability_ci_median  # assumed in [0, 1]
 
         G.add_node(
-            sys.system_id,  # node identifier = system_id
+            sys.scaffold_id,  # node identifier = scaffold_id
             layer=timestamp_to_layer[sys.generation_timestamp],
             cluster_id=sys.cluster_id,  # for color grouping
             fitness=fitness_val,  # store normalized fitness
         )
 
     # 5. Add edges from parents to child (if they exist in this population)
-    system_ids = set(s.system_id for s in systems)
-    for sys in systems:
-        if sys.system_first_parent_id and sys.system_first_parent_id in system_ids:
-            G.add_edge(sys.system_first_parent_id, sys.system_id)
-        if sys.system_second_parent_id and sys.system_second_parent_id in system_ids:
-            G.add_edge(sys.system_second_parent_id, sys.system_id)
+    scaffold_ids = set(s.scaffold_id for s in scaffolds)
+    for sys in scaffolds:
+        if (
+            sys.scaffold_first_parent_id
+            and sys.scaffold_first_parent_id in scaffold_ids
+        ):
+            G.add_edge(sys.scaffold_first_parent_id, sys.scaffold_id)
+        if (
+            sys.scaffold_second_parent_id
+            and sys.scaffold_second_parent_id in scaffold_ids
+        ):
+            G.add_edge(sys.scaffold_second_parent_id, sys.scaffold_id)
 
     # 6. Use the built-in multipartite layout keyed by 'layer'
     pos = nx.multipartite_layout(G, subset_key="layer")
@@ -80,8 +86,8 @@ def plot_tree(systems):
         cluster_index = all_clusters.index(cluster)
         node_color.append(cmap(cluster_index))
 
-    # 8. Create a label dictionary mapping system_id -> system_name
-    label_dict = {sys.system_id: sys.system_name for sys in systems}
+    # 8. Create a label dictionary mapping scaffold_id -> scaffold_name
+    label_dict = {sys.scaffold_id: sys.scaffold_name for sys in scaffolds}
 
     # 9. Create a node_size list based on fitness
     #    e.g. map fitness=0 to size=100, fitness=1 to size=2100
@@ -123,7 +129,7 @@ def plot_tree(systems):
     )
 
     plt.title(
-        "Systems by Generation Timestamp (colored by cluster_id, sized by fitness)"
+        "Scaffolds by Generation Timestamp (colored by cluster_id, sized by fitness)"
     )
     plt.show()
 
@@ -146,27 +152,27 @@ if __name__ == "__main__":
         # /home/#/Documents/AgentBreeder/src/logs/test/20250129-083111/GPQA-13e8fb8c-4d16-4487-85ce-e40249da8422
         population_id = "cfda0d48-e4aa-439b-a348-b1433d27d344"
 
-        # Suppose you have a list of systems from your DB:
-        systems = session.query(System).filter_by(population_id=population_id).all()
-        print(len(systems))
-        print(systems[0])
+        # Suppose you have a list of scaffolds from your DB:
+        scaffolds = session.query(Scaffold).filter_by(population_id=population_id).all()
+        print(len(scaffolds))
+        print(scaffolds[0])
         print(population_id)
-        plot_tree(systems)
+        plot_tree(scaffolds)
 
 
-# def assign_generations(systems):
-#     base_generation = systems[:7]
+# def assign_generations(scaffolds):
+#     base_generation = scaffolds[:7]
 #     generation_timestamp = datetime.datetime.utcnow()
-#     for system in base_generation:
-#         print(system.system_name, system.system_id)
-#         system.update(generation_timestamp=generation_timestamp)
+#     for scaffold in base_generation:
+#         print(scaffold.scaffold_name, scaffold.scaffold_id)
+#         scaffold.update(generation_timestamp=generation_timestamp)
 
-#     other_generations = systems[7:]
+#     other_generations = scaffolds[7:]
 
-#     # each generation has 10 systems
+#     # each generation has 10 scaffolds
 #     for i in range(5):
 #         generation = other_generations[i * 10 : (i + 1) * 10]
 #         generation_timestamp = datetime.datetime.utcnow()
-#         for system in generation:
-#             print(system.system_name, system.system_id)
-#             system.update(generation_timestamp=generation_timestamp)
+#         for scaffold in generation:
+#             print(scaffold.scaffold_name, scaffold.scaffold_id)
+#             scaffold.update(generation_timestamp=generation_timestamp)

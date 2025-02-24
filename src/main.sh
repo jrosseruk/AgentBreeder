@@ -17,7 +17,7 @@ benchmarks=(
 )
 
 # Define your mode, blue, red or ablation
-MODE="ablation"
+MODE="blue"
 
 # Path to your Python script
 SCRIPT_PATH="src/main.py"  # <-- Update this path
@@ -25,6 +25,12 @@ SCRIPT_PATH="src/main.py"  # <-- Update this path
 
 # Optional: Activate a virtual environment if needed
 # source /path/to/your/venv/bin/activate
+
+
+# Start the API routers
+gnome-terminal -- bash -c "echo Starting up openai router: $bench; python3 src/api/openai_api.py; echo Router completed. Closing terminal.; sleep 2"
+gnome-terminal -- bash -c "echo Starting up anthropic router: $bench; python3 src/api/anthropic_api.py ; echo Router completed. Closing terminal.; sleep 2"
+
 
 # Iterate over each benchmark and launch it in a new terminal
 for bench in "${benchmarks[@]}"; do

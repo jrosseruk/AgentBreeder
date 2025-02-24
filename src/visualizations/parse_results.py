@@ -8,48 +8,50 @@ def convert_ci_to_margin(data):
     """
     for i, entry in enumerate(data):
 
-        if "system_safety_ci_median" in entry and entry.get("system_safety_ci_upper"):
+        if "scaffold_safety_ci_median" in entry and entry.get(
+            "scaffold_safety_ci_upper"
+        ):
 
-            safety_margin = entry.get("system_safety_ci_upper", 0.0) - entry.get(
-                "system_safety_ci_median", 0.0
+            safety_margin = entry.get("scaffold_safety_ci_upper", 0.0) - entry.get(
+                "scaffold_safety_ci_median", 0.0
             )
-            entry["system_safety_ci"] = (
-                f"{entry.get('system_safety_ci_median', 0)*100:.1f} $\pm$ {safety_margin*100:.1f}"
+            entry["scaffold_safety_ci"] = (
+                f"{entry.get('scaffold_safety_ci_median', 0)*100:.1f} $\pm$ {safety_margin*100:.1f}"
             )
             # Store the median for comparison
-            entry["_system_safety_median"] = entry.get("system_safety_ci_median", 0)
+            entry["_scaffold_safety_median"] = entry.get("scaffold_safety_ci_median", 0)
 
-        if "system_capability_ci_median" in entry and entry.get(
-            "system_capability_ci_upper"
+        if "scaffold_capability_ci_median" in entry and entry.get(
+            "scaffold_capability_ci_upper"
         ):
             capability_margin = (
-                entry["system_capability_ci_upper"]
-                - entry["system_capability_ci_median"]
+                entry["scaffold_capability_ci_upper"]
+                - entry["scaffold_capability_ci_median"]
             )
-            entry["system_capability_ci"] = (
-                f"{entry['system_capability_ci_median']*100:.1f} $\pm$ {capability_margin*100:.1f}"
+            entry["scaffold_capability_ci"] = (
+                f"{entry['scaffold_capability_ci_median']*100:.1f} $\pm$ {capability_margin*100:.1f}"
             )
             # Store the median for comparison
-            entry["_system_capability_median"] = entry.get(
-                "system_capability_ci_median", 0
+            entry["_scaffold_capability_median"] = entry.get(
+                "scaffold_capability_ci_median", 0
             )
 
-        if "system_truth_ci_median" in entry and entry.get("system_truth_ci_upper"):
+        if "scaffold_truth_ci_median" in entry and entry.get("scaffold_truth_ci_upper"):
             truth_margin = (
-                entry["system_truth_ci_upper"] - entry["system_truth_ci_median"]
+                entry["scaffold_truth_ci_upper"] - entry["scaffold_truth_ci_median"]
             )
-            entry["system_truth_ci"] = (
-                f"{entry['system_truth_ci_median']*100:.1f} $\pm$ {truth_margin*100:.1f}"
+            entry["scaffold_truth_ci"] = (
+                f"{entry['scaffold_truth_ci_median']*100:.1f} $\pm$ {truth_margin*100:.1f}"
             )
             # Store the median for comparison
-            entry["_system_truth_median"] = entry.get("system_truth_ci_median", 0)
+            entry["_scaffold_truth_median"] = entry.get("scaffold_truth_ci_median", 0)
 
     return data
 
 
 def process_jsonl(input_file):
     """
-    Reads a JSONL file, converts confidence intervals, identifies key systems,
+    Reads a JSONL file, converts confidence intervals, identifies key scaffolds,
     and prints the modified data with annotations.
     """
     data = []
@@ -58,39 +60,39 @@ def process_jsonl(input_file):
         for line in infile:
             entry = json.loads(line.strip())
             converted_entry = convert_ci_to_margin([entry])[0]
-            # if float(converted_entry["system_capability_ci_median"]) <= 0.1:
-            #     print(converted_entry["system_capability_ci_median"])
+            # if float(converted_entry["scaffold_capability_ci_median"]) <= 0.1:
+            #     print(converted_entry["scaffold_capability_ci_median"])
 
             #     continue
             data.append(converted_entry)
 
     # print(data[0])
-    # data.sort(key=lambda x: x["system_timestamp"])
+    # data.sort(key=lambda x: x["scaffold_timestamp"])
 
     if not data:
         print("No data found in the input file.")
         return
 
-    # Determine the most capable and most safe systems
-    max_capability = max(entry.get("_system_capability_median", 0) for entry in data)
-    max_safety = max(entry.get("_system_safety_median", 0) for entry in data)
-    max_truth = max(entry.get("_system_truth_median", 0) for entry in data)
+    # Determine the most capable and most safe scaffolds
+    max_capability = max(entry.get("_scaffold_capability_median", 0) for entry in data)
+    max_safety = max(entry.get("_scaffold_safety_median", 0) for entry in data)
+    max_truth = max(entry.get("_scaffold_truth_median", 0) for entry in data)
 
-    # Identify Pareto optimal systems
+    # Identify Pareto optimal scaffolds
     pareto_optimal = []
     for entry in data:
         dominated = False
         for other in data:
             if (
-                other.get("_system_capability_median", 0)
-                > entry.get("_system_capability_median", 0)
-                and other.get("_system_safety_median", 0)
-                >= entry.get("_system_safety_median", 0)
+                other.get("_scaffold_capability_median", 0)
+                > entry.get("_scaffold_capability_median", 0)
+                and other.get("_scaffold_safety_median", 0)
+                >= entry.get("_scaffold_safety_median", 0)
             ) or (
-                other.get("_system_capability_median", 0)
-                >= entry.get("_system_capability_median", 0)
-                and other.get("_system_safety_median", 0)
-                > entry.get("_system_safety_median", 0)
+                other.get("_scaffold_capability_median", 0)
+                >= entry.get("_scaffold_capability_median", 0)
+                and other.get("_scaffold_safety_median", 0)
+                > entry.get("_scaffold_safety_median", 0)
             ):
                 dominated = True
                 break
@@ -100,16 +102,16 @@ def process_jsonl(input_file):
     # Print the results with annotations
     for result in data:
         annotations = []
-        if result.get("_system_capability_median", 0) == max_capability:
+        if result.get("_scaffold_capability_median", 0) == max_capability:
             annotations.append("(Most Capable)")
-        if result.get("_system_safety_median", 0) == max_safety:
+        if result.get("_scaffold_safety_median", 0) == max_safety:
             annotations.append("(Most Safe)")
         if result in pareto_optimal:
             annotations.append("(Pareto Optimal)")
 
         annotation_str = " ".join(annotations)
         print(
-            f"{result['system_name']} | {result.get('system_capability_ci', 'NONE')} & {result.get('system_safety_ci', 'NONE')} & {result.get('system_truth_ci', 'NONE')} {annotation_str}"
+            f"{result['scaffold_name']} | {result.get('scaffold_capability_ci', 'NONE')} & {result.get('scaffold_safety_ci', 'NONE')} & {result.get('scaffold_truth_ci', 'NONE')} {annotation_str}"
         )
 
     return data

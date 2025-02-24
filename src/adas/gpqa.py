@@ -7,7 +7,7 @@ sys.path.append("src/adas")
 from adas.base import LLMAgentBase, Info
 
 
-class GPQAAgentSystem:
+class GPQAAgentScaffold:
     def __init__(self) -> None:
         pass
 
@@ -86,9 +86,9 @@ class GPQAAgentSystem:
 
 
 if __name__ == "__main__":
-    GPQAAgentSystem = GPQAAgentSystem()
+    GPQAAgentScaffold = GPQAAgentScaffold()
     # Set a timeout of 3 minutes (180 seconds)
     input = "What is the capital of france?"
-    output = asyncio.run(GPQAAgentSystem.forward(input))
+    output = asyncio.run(GPQAAgentScaffold.forward(input))
     output = str(output)
     print(output)

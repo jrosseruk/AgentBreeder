@@ -1,62 +1,24 @@
-import random
 import argparse
-import random
-from concurrent.futures import ThreadPoolExecutor
-import logging
-from tqdm import tqdm
-from generator import initialize_population_id, Generator
-from descriptor import Clusterer
-from base import initialize_session, Population, System
+from base import initialize_session, Population, Scaffold, initialize_population_id
 from evals import Validator
 import os
-import uuid
-import asyncio
-import datetime
 import warnings
 from sqlalchemy.exc import SAWarning
-from sqlalchemy.orm import joinedload
+from discover.seed_scaffolds import COT
+import logging
+import datetime
 import time
-
 
 # Disable logging for httpx
 logging.getLogger("httpx").disabled = True
 
 # Suppress all SAWarnings
 warnings.filterwarnings("ignore", category=SAWarning)
-from base import (
-    System,
-    Population,
-    initialize_session,
-)
-from prompts.initial_population import (
-    COT,
-    COT_SC,
-    Reflexion,
-    LLM_debate,
-    Take_a_step_back,
-    QD,
-    Role_Assignment,
-)
-
-# from rich import print
-from descriptor import Descriptor
-from evals import Validator
-
-from evals import Validator
-from descriptor import Clusterer
-import asyncio
-import logging
-import datetime
-import copy
-
-import argparse
-import os
-import time
 
 
 def initialize_population_id(args) -> str:
     """
-    Initializes the first generation of systems for a given population.
+    Initializes the first generation of scaffolds for a given population.
 
     Args:
         args: Arguments object containing configurations for the population initialization.
@@ -66,36 +28,26 @@ def initialize_population_id(args) -> str:
     """
     for session in initialize_session():
 
-        archive = [
-            COT,
-            # COT_SC,
-            # Reflexion,
-            # LLM_debate,
-            # Take_a_step_back,
-            # QD,
-            # Role_Assignment,
-        ]
+        archive = [COT]
 
         population = Population(session=session, population_benchmark=args.benchmark)
 
         validator = Validator(args)
 
         generation_timestamp = datetime.datetime.utcnow()
-        systems_for_validation = []
-        for system in archive:
-            system = System(
+        scaffolds_for_validation = []
+        for scaffold in archive:
+            scaffold = Scaffold(
                 session=session,
-                system_name=system["name"],
-                system_code=system["code"],
-                system_thought_process=system["thought"],
+                scaffold_name=scaffold["name"],
+                scaffold_code=scaffold["code"],
+                scaffold_thought_process=scaffold["thought"],
                 population=population,
                 generation_timestamp=generation_timestamp,
             )
-            systems_for_validation.append(system)
+            scaffolds_for_validation.append(scaffold)
 
-        validator.validate(systems_for_validation, log_d="baselines")
-
-        # create a json file
+        validator.validate(scaffolds_for_validation, log_d="baselines")
 
 
 if __name__ == "__main__":
