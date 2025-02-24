@@ -11,3 +11,4 @@ from .mmlu_cf import MMLUCF
 from .salad_data import SaladData
 from .simple_qa import SimpleQA
 from .truthful_qa import TruthfulQA
+from .intercode_ctf import IntercodeCTF

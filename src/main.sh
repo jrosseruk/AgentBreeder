@@ -2,7 +2,8 @@
 
 # Define the list of benchmarks
 benchmarks=(
-    "gpqa"
+    # "gpqa"
+    intercode_ctf
     # "drop"
     # "math"
     # "mmlu"
@@ -17,7 +18,7 @@ benchmarks=(
 )
 
 # Define your mode, blue, red or ablation
-MODE="blue"
+MODE="ablation"
 
 # Path to your Python script
 SCRIPT_PATH="src/main.py"  # <-- Update this path

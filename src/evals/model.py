@@ -105,6 +105,10 @@ class CustomModel(Model):
         except Exception as e:
             print("Error during evaluation:", e)
             output = f"Error: {str(e)}"
+            # get traceback
+            import traceback
+
+            print(traceback.format_exc())
 
         # Just return a trivial output
         return ModelOutput.from_content(model=self.api.model_name, content=output)

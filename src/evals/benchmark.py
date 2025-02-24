@@ -229,7 +229,13 @@ class Benchmark(ABC):
             AgentScaffold = module.AgentScaffold
 
         except Exception as e:
-            print("Error during evaluation:", e)
+            print("Error during benchmark evaluation:", e)
+
+            # get traceback
+            import traceback
+
+            print(traceback.format_exc())
+
             return None, temp_file
 
         return AgentScaffold, temp_file
