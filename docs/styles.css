@@ -321,6 +321,26 @@ a:hover {
     margin-bottom: 0.5rem;
 }
 
+/* Icon masks */
+.nav-pills .icon {
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+    margin-bottom: 0.5rem;
+}
+
+.icon-github {
+    background-color: currentColor;
+    -webkit-mask-image: url('assets/github-mark.svg');
+    mask-image: url('assets/github-mark.svg');
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+}
+
 /* Video container */
 .video-container {
     position: relative;
@@ -437,7 +457,7 @@ a:hover {
 
 .bibtex-textarea {
     width: 100%;
-    height: 8rem;
+    height: 12rem;
     background-color: var(--color-global-bg);
     color: var(--color-global-text);
     border: 1px solid var(--color-border);
@@ -492,7 +512,8 @@ a:hover {
     }
 
     .nav-pills {
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
         gap: 1rem;
     }
 

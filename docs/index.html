@@ -7,7 +7,7 @@
     <meta name="description" content="AgentBreeder: Mitigating the AI Safety Impact of Multi-Agent Scaffolds via Self-Improvement">
     <meta name="keywords" content="AI safety, multi-agent, scaffolds, AgentBreeder, research">
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
         (function() {
@@ -65,36 +65,44 @@
 
             <div class="authors mb-4">
                 <ul class="list-inline">
-                    <li>J Rosser</li>
-                    <li>Jakob Foerster</li>
+                    <li><a href="https://jrosser.co.uk">J Rosser</a></li>
+                    <li><a href="https://www.jakobfoerster.com/">Jakob Foerster</a></li>
                 </ul>
             </div>
 
             <div class="affiliations mb-4">
                 <ul class="list-inline">
-                    <li><img src="assets/oxford_logo.png" height="48px" alt="Oxford"></li>
-                    <li><img src="assets/flair_logo.png" height="48px" alt="FLAIR"></li>
+                    <li><a href="https://www.ox.ac.uk/"><img src="assets/oxford_logo.png" height="48px" alt="Oxford"></a></li>
+                    <li><a href="https://foersterlab.com/"><img src="assets/flair_logo.png" height="48px" alt="FLAIR"></a></li>
                 </ul>
             </div>
 
             <div class="conference mb-6">
-                <span class="conference-name">NeurIPS 2025 Spotlight</span>
+                <span class="conference-name">🏆 NeurIPS 2025 Spotlight 🏆</span>
             </div>
 
             <div class="action-buttons">
                 <ul class="nav nav-pills nav-justified">
                     <li><a href="https://arxiv.org/abs/2502.00757"><img src="assets/thumbnail.jpg" height="60px" alt="Paper"><h4>Paper</h4></a></li>
-                    <li><a href="https://github.com/jrosseruk/AgentBreeder"><img src="assets/GitHub-Mark.png" height="60px" alt="Code"><h4>Code</h4></a></li>
-                    <!-- <li><a href="https://iclr.cc/media/iclr-2025/Slides/10000479.pdf"><img src="assets/huggingface.svg" height="60px" alt="Documentation"><h4>Documentation</h4></a></li> -->
+                    <li><a href="https://github.com/jrosseruk/AgentBreeder"><span class="icon icon-github" aria-hidden="true"></span><h4>Code</h4></a></li>
+                    <li><a href="https://iclr.cc/media/iclr-2025/Slides/10000479.pdf"><img src="assets/Google_Slides_logo_(2014-2020).svg" height="60px" alt="Slides"><h4>Slides</h4></a></li>
+                  
                 </ul>
             </div>
         </section>
 
 
         <!-- Abstract Section -->
+        
         <section id="abstract" class="mb-16">
+
             <div class="prose">
                 <h2>Abstract</h2>
+                <figure >
+                    <img src="assets/AgentBreederDiagramJPG.jpg" alt="AgentBreeder overview diagram">
+                    <figcaption>Figure 1: Overview of AgentBreeder's evolutionary search over multi-agent scaffolds.</figcaption>
+                </figure>
+                
                 <p>Scaffolding Large Language Models (LLMs) into multi-agent systems often improves performance on complex tasks, but the safety impact of such scaffolds has not been thoroughly explored. We introduce <strong>AgentBreeder</strong>, a framework for multi-objective self-improving evolutionary search over scaffolds, specifically targeting scaffolds' safety impact on large language models in multi-agent systems.</p>
 
                 <p>We evaluate discovered scaffolds on widely recognized reasoning, mathematics, and safety benchmarks. In <strong>'blue' mode</strong>, we see a <strong>79.4% average uplift</strong> in safety benchmark performance while maintaining or improving capability scores. In <strong>'red' mode</strong>, we find adversarially weak scaffolds emerging concurrently with capability optimization. Our work demonstrates the risks of multi-agent scaffolding and provides a framework for mitigating them.</p>
@@ -150,7 +158,7 @@
 
         <!-- Citation Section -->
         <section id="citation" class="mb-16">
-            <div class="citation-container">
+            
                 <h3>Citation</h3>
                 <div class="citation-box">
                     <textarea id="bibtex" class="bibtex-textarea" readonly>
@@ -162,7 +170,7 @@
   note={NeurIPS 2025 Spotlight}
 }</textarea>
                 </div>
-            </div>
+        
         </section>
     </main>
 
