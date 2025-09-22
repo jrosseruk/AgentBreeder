@@ -1,298 +1,176 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
 <head>
-<!-- 2025-05-26 Mon 20:35 -->
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Easy Academic Website Template</title>
-<meta name="author" content="Bidipta Sarkar" />
-<meta name="description" content="Easy Academic Website Template" />
-<meta name="keywords" content="homepage, website, research, AI" />
-<meta name="generator" content="Org Mode" />
-<link rel="icon" type="image/x-icon" href="imgs/favicon.ico">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.8.0/codemirror.min.css">
-<link rel="stylesheet" type="text/css" href="utils/style.css"/>
-<link rel="stylesheet" type="text/css" href="utils/bootstrap.min.css"/>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.8.0/codemirror.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.3/clipboard.min.js"></script>
-<script src="utils/app.js"></script>
-<script>
-  window.MathJax = {
-    tex: {
-      ams: {
-        multlineWidth: '85%'
-      },
-      tags: 'ams',
-      tagSide: 'right',
-      tagIndent: '.8em'
-    },
-    chtml: {
-      scale: 1.0,
-      displayAlign: 'center',
-      displayIndent: '0em'
-    },
-    svg: {
-      scale: 1.0,
-      displayAlign: 'center',
-      displayIndent: '0em'
-    },
-    output: {
-      font: 'mathjax-modern',
-      displayOverflow: 'overflow'
-    }
-  };
-</script>
-
-<script
-  id="MathJax-script"
-  async
-  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentBreeder: Mitigating the AI Safety Impact of Multi-Agent Scaffolds</title>
+    <meta name="description" content="AgentBreeder: Mitigating the AI Safety Impact of Multi-Agent Scaffolds via Self-Improvement">
+    <meta name="keywords" content="AI safety, multi-agent, scaffolds, AgentBreeder, research">
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        (function() {
+            try {
+                var saved = localStorage.getItem('theme');
+                var theme = saved === 'dark' || saved === 'light' ? saved : 'light';
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                ams: { multlineWidth: '85%' },
+                tags: 'ams',
+                tagSide: 'right',
+                tagIndent: '.8em'
+            },
+            chtml: {
+                scale: 1.0,
+                displayAlign: 'center',
+                displayIndent: '0em'
+            },
+            svg: {
+                scale: 1.0,
+                displayAlign: 'center',
+                displayIndent: '0em'
+            },
+            output: {
+                font: 'mathjax-modern',
+                displayOverflow: 'overflow'
+            }
+        };
+    </script>
 </head>
-<body>
-<div id="content" class="content">
-<div id="main" class="container">
+<body class="bg-global-bg text-global-text antialiased">
+    <!-- Theme Toggle Button -->
+    <button id="theme-toggle" class="theme-toggle-btn flex h-7 w-7 items-center justify-center rounded-md border border-accent-2/20 bg-accent-2/10 p-1 transition-colors hover:bg-accent-2/20" aria-label="Switch to dark theme">
+        <svg class="sun-icon h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
+        </svg>
+        <svg class="moon-icon h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+        </svg>
+    </button>
+    <!-- Main Content -->
+    <main class="mx-auto max-w-3xl px-4 sm:px-8 pt-8">
+        <!-- Hero Section -->
+        <section id="hero" class="mb-16 text-center">
+            <h1 class="title mb-4">AgentBreeder</h1>
+            <p class="text-xl mb-6"><strong>Mitigating the AI Safety Impact of Multi-Agent Scaffolds via Self-Improvement</strong></p>
 
-<p>
-<div class="row"><h2 class="col-md-12 text-center"><strong><font size="+4r">  Easy Academic Website Template  </font></strong></h2></div><br />
-</p>
+            <div class="authors mb-4">
+                <ul class="list-inline">
+                    <li>J Rosser</li>
+                    <li>Jakob Foerster</li>
+                </ul>
+            </div>
 
+            <div class="affiliations mb-4">
+                <ul class="list-inline">
+                    <li><img src="assets/oxford_logo.png" height="48px" alt="Oxford"></li>
+                    <li><img src="assets/flair_logo.png" height="48px" alt="FLAIR"></li>
+                </ul>
+            </div>
 
-<div class="row"> <div class="col-md-12 text-center">
-<ul class="org-ul list-inline">
-<li>Your Name<br /></li>
-<li>Coauthor Name<br /></li>
-</ul>
-</div> </div>
+            <div class="conference mb-6">
+                <span class="conference-name">NeurIPS 2025 Spotlight</span>
+            </div>
 
-
-<div class="row"> <div class="col-md-12 text-center">
-<ul class="org-ul list-inline">
-<li><image src="imgs/oxford_logo.png" height="48px"><br /></li>
-<li><image src="imgs/flair_logo.png" height="48px"><br /></li>
-</ul>
-</div> </div>
-
-
-<div class="row"> <div class="col-md-12 text-center"><font size="+2">
-<ul class="org-ul list-inline">
-<li>Conference Name<br /></li>
-</ul>
-</font></div> </div>
-
-
-<div class="row"> <div class="col-md-4 col-md-offset-4 text-center">
-<ul class="org-ul nav nav-pills nav-justified">
-<li><a href="https://arxiv.org"><image src="imgs/thumbnail.jpg" height="60px"><h4><strong>Paper</strong></h4></a><br /></li>
-<li><a href="https://github.com/EasyAcademicWebsite/EasyAcademicWebsite.github.io"><image src="imgs/GitHub-Mark.png" height="60px"><h4><strong>Code</strong></h4></a><br /></li>
-<li><a href="https://huggingface.co"><image src="imgs/huggingface.svg" height="60px"><h4><strong>Models</strong></h4></a><br /></li>
-</ul>
-</div></div>
-
-<div class="row"> <div class="col-md-8 col-md-offset-2">
-
-<div style="position:relative;padding-top:56.25%;">
-    <iframe src="https://www.youtube.com/embed/aKydtOXW8mI" width="560" height="315" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
-</div>
-<div id="outline-container-orgbe8b481" class="outline-2">
-<h2 id="orgbe8b481"></h2>
-<div class="outline-text-2" id="text-orgbe8b481">
-</div>
-<div id="outline-container-orgab85ac8" class="outline-3">
-<h3 id="orgab85ac8">Abstract</h3>
-<div class="outline-text-3" id="text-orgab85ac8">
-<p>
-Insert your abstract here.<br />
-</p>
-</div>
-</div>
-<div id="outline-container-org77536e4" class="outline-3">
-<h3 id="org77536e4">Instructions</h3>
-<div class="outline-text-3" id="text-org77536e4">
-<p>
-To set this template up with your own website, follow the instructions <a href="https://docs.google.com/document/d/15qgsmYzbRwnBhwSdTgfuzuxqGvH4fj7BO0rLwTrM3Dc/edit?usp=sharing">here</a>.<br />
-</p>
-</div>
-</div>
-<div id="outline-container-org669e8c5" class="outline-3">
-<h3 id="org669e8c5">Cool Features</h3>
-<div class="outline-text-3" id="text-org669e8c5">
-<p>
-Review the <a href="https://orgmode.org/manual/HTML-Export.html">Org Mode Documentation</a> for a more comprehensive list of features.<br />
-</p>
-</div>
-<div id="outline-container-orgf1b055e" class="outline-4">
-<h4 id="orgf1b055e">Math Equations</h4>
-<div class="outline-text-4" id="text-orgf1b055e">
-<p>
-You can insert equations using standard latex macros like <code>$e^{i\pi} = -1$</code> &rarr; \(e^{i\pi} = -1\) for inline equations using single dollars or separate line equations using double dollars <code>$$\sum_{n=1}^{\infty} n = -\frac{1}{12}$$</code> &rarr; \[\sum_{n=1}^{\infty} n = -\frac{1}{12}\]<br />
-</p>
-
-<p>
-Alternatively, you can use latex begin and end equation <code>\begin{equation}1 + 1 = 2\end{equation}</code> &rarr;<br />
-</p>
-
-\begin{equation}1 + 1 = 2\end{equation}
-</div>
-</div>
-<div id="outline-container-org9c3d214" class="outline-4">
-<h4 id="org9c3d214">Images</h4>
-<div class="outline-text-4" id="text-org9c3d214">
-<p>
-You can insert an image using double square braces, like <code>[[./imgs/oxford_logo.png]]</code>. Specify html attributes beforehand, like width.<br />
-</p>
+            <div class="action-buttons">
+                <ul class="nav nav-pills nav-justified">
+                    <li><a href="https://arxiv.org/abs/2502.00757"><img src="assets/thumbnail.jpg" height="60px" alt="Paper"><h4>Paper</h4></a></li>
+                    <li><a href="https://github.com/jrosseruk/AgentBreeder"><img src="assets/GitHub-Mark.png" height="60px" alt="Code"><h4>Code</h4></a></li>
+                    <!-- <li><a href="https://iclr.cc/media/iclr-2025/Slides/10000479.pdf"><img src="assets/huggingface.svg" height="60px" alt="Documentation"><h4>Documentation</h4></a></li> -->
+                </ul>
+            </div>
+        </section>
 
 
-<div id="orgd850ae0" class="figure">
-<p><img src="./imgs/oxford_logo.png" alt="oxford_logo.png" width="100%" /><br />
-</p>
-</div>
-</div>
-</div>
-<div id="outline-container-orga4d55a0" class="outline-4">
-<h4 id="orga4d55a0">Code</h4>
-<div class="outline-text-4" id="text-orga4d55a0">
-<p>
-You can insert code using begin_src and end_src with a language:<br />
-</p>
+        <!-- Abstract Section -->
+        <section id="abstract" class="mb-16">
+            <div class="prose">
+                <h2>Abstract</h2>
+                <p>Scaffolding Large Language Models (LLMs) into multi-agent systems often improves performance on complex tasks, but the safety impact of such scaffolds has not been thoroughly explored. We introduce <strong>AgentBreeder</strong>, a framework for multi-objective self-improving evolutionary search over scaffolds, specifically targeting scaffolds' safety impact on large language models in multi-agent systems.</p>
 
-<div class="org-src-container">
-<pre class="src src-python"><span style="color: #C678DD;">def</span> <span style="color: #61AFEF;">agi</span>(input_string):
-    <span style="color: #C678DD;">return</span> 42
-</pre>
-</div>
-</div>
-</div>
-<div id="outline-container-orgf96ce9b" class="outline-4">
-<h4 id="orgf96ce9b">Monospace Example</h4>
-<div class="outline-text-4" id="text-orgf96ce9b">
-<p>
-You can use begin_example to have a block of monospace text<br />
-</p>
+                <p>We evaluate discovered scaffolds on widely recognized reasoning, mathematics, and safety benchmarks. In <strong>'blue' mode</strong>, we see a <strong>79.4% average uplift</strong> in safety benchmark performance while maintaining or improving capability scores. In <strong>'red' mode</strong>, we find adversarially weak scaffolds emerging concurrently with capability optimization. Our work demonstrates the risks of multi-agent scaffolding and provides a framework for mitigating them.</p>
+            </div>
+        </section>
 
-<pre class="example" id="orgccb016b">
-Like this example
-</pre>
-</div>
-</div>
-<div id="outline-container-org957d40a" class="outline-4">
-<h4 id="org957d40a">Link Example</h4>
-<div class="outline-text-4" id="text-org957d40a">
-<p>
-You can use links by writing <code>[[https://www.google.com/][Google]]</code> &rarr; <a href="https://www.google.com/">Google</a><br />
-</p>
-</div>
-</div>
-<div id="outline-container-orgc2d29d1" class="outline-4">
-<h4 id="orgc2d29d1">Random HTML snippets</h4>
-<div class="outline-text-4" id="text-orgc2d29d1">
-<p>
-For inline HTML, you can use double at signs <code>@@html:&lt;kbd&gt;like this&lt;/kbd&gt;@@</code> &rarr; <kbd>like this</kbd>.<br />
-</p>
+        <!-- Key Achievements Section -->
+        <section id="achievements" class="mb-16">
+            <div class="prose">
+                <h2>Key Achievements</h2>
+                <ul>
+                    <li>🎯 <strong>79.4% average uplift</strong> in safety benchmark performance while maintaining capability</li>
+                    <li>🔬 <strong>First framework</strong> for multi-objective evolutionary search over multi-agent scaffolds</li>
+                    <li>⚖️ <strong>Balanced optimization</strong> of safety and capability through Pareto optimization</li>
+                    <li>🔴 <strong>Red-team insights</strong> revealing how capable scaffolds can become highly vulnerable</li>
+                    <li>📊 <strong>Comprehensive evaluation</strong> across DROP, MMLU, GPQA, and SaladData benchmarks</li>
+                </ul>
+            </div>
+        </section>
 
-<p>
-For a single HTML line, you can use <code>#+html:</code> followed by your line<br />
-</p>
+        <!-- Operational Modes Section -->
+        <section id="modes" class="mb-16">
+            <div class="prose">
+                <h2>Operational Modes</h2>
+                <p>AgentBreeder operates in three distinct modes, each serving different research and deployment needs:</p>
 
-<font color="blue"> Like this line in html </font>
+                <h3>🔵 BlueAgentBreeder (Defense)</h3>
+                <ul>
+                    <li><strong>Objective</strong>: Maximize both safety and capability</li>
+                    <li><strong>Use case</strong>: Develop robust, safe multi-agent systems</li>
+                    <li><strong>Result</strong>: 79.4% average safety improvement while maintaining capability</li>
+                </ul>
+                <p>BlueAgentBreeder focuses on creating scaffolds that enhance both the safety and performance of multi-agent systems. This mode is ideal for production deployments where safety is paramount.</p>
 
-<p>
-You can insert any block of HTML by surrounding your code with #+begin_export html and #+end_export, which can include javascript.<br />
-</p>
+                <h3>🔴 RedAgentBreeder (Attack)</h3>
+                <ul>
+                    <li><strong>Objective</strong>: Maximize capability while minimizing safety</li>
+                    <li><strong>Use case</strong>: Red-team testing and vulnerability discovery</li>
+                    <li><strong>Result</strong>: Reveals how scaffolding can inadvertently expose safety weaknesses</li>
+                </ul>
+                <p>RedAgentBreeder serves as an adversarial testing tool, helping researchers understand potential vulnerabilities in multi-agent scaffolds. This mode is crucial for identifying safety risks before deployment.</p>
 
-<script>
-function changeButtonText(button) {
-button.textContent = "You clicked me!";
-}
-</script>
+                <h3>🎯 CapableAgentBreeder (Capability)</h3>
+                <ul>
+                    <li><strong>Objective</strong>: Maximize capability only</li>
+                    <li><strong>Use case</strong>: Baseline comparison and pure performance optimization</li>
+                    <li><strong>Result</strong>: Competitive performance with existing approaches</li>
+                </ul>
+                <p>CapableAgentBreeder provides a baseline for comparison by focusing solely on performance optimization without safety constraints.</p>
+            </div>
+        </section>
+        
 
-<button onclick="changeButtonText(this)">Click Me</button>
-</div>
-</div>
-</div>
-<div id="outline-container-orgb7df0e7" class="outline-3">
-<h3 id="orgb7df0e7">Example Websites</h3>
-<div class="outline-text-3" id="text-orgb7df0e7">
-<p>
-The websites below were created using a similar style to this website. Feel free to use them as reference when trying to incorporate specific features.<br />
-</p>
-
-<table border="1" cellspacing="0" cellpadding="6" rules="all" frame="border">
-
-
-<colgroup>
-<col  class="org-left" />
-
-<col  class="org-left" />
-
-<col  class="org-left" />
-</colgroup>
-<thead>
-<tr>
-<th scope="col" class="org-left">Name</th>
-<th scope="col" class="org-left">Website</th>
-<th scope="col" class="org-left">Code</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="org-left">Diverse Conventions for Human-AI Interaction</td>
-<td class="org-left"><a href="https://iliad.stanford.edu/Diverse-Conventions/">https://iliad.stanford.edu/Diverse-Conventions/</a></td>
-<td class="org-left"><a href="https://github.com/Stanford-ILIAD/Diverse-Conventions/tree/website">Code</a></td>
-</tr>
-
-<tr>
-<td class="org-left">Training Language Models for Social Deduction with Multi-Agent Reinforcement Learning</td>
-<td class="org-left"><a href="https://socialdeductionllm.github.io/">https://socialdeductionllm.github.io/</a></td>
-<td class="org-left"><a href="https://github.com/SocialDeductionLLM/SocialDeductionLLM.github.io/tree/main">Code</a></td>
-</tr>
-
-<tr>
-<td class="org-left">LOB-Bench: Benchmarking Generative AI for Finance – an Application to Limit Order Book Data</td>
-<td class="org-left"><a href="https://lobbench.github.io/">https://lobbench.github.io/</a></td>
-<td class="org-left"><a href="https://github.com/lobbench/lobbench.github.io">Code</a></td>
-</tr>
-
-<tr>
-<td class="org-left">Easy Academic Website Template</td>
-<td class="org-left"><a href="https://easyacademicwebsite.github.io/">https://easyacademicwebsite.github.io/</a></td>
-<td class="org-left"><a href="https://github.com/EasyAcademicWebsite/EasyAcademicWebsite.github.io">Code</a></td>
-</tr>
-</tbody>
-</table>
-
-
-
-</div></div>
-
-</div></div></div>
-
-
-<div class="row"><div class="col-md-8 col-md-offset-2">
-<h3>Citation</h3>
-<div class="form-group col-md-10 col-md-offset-1"><textarea id="bibtex" class="form-control" readonly>
-@inproceedings{NameYearTitle,
-	title={Easy Academic Website Template},
-	author={Your Name and Coauthor Name},
-	booktitle={Conference Name},
-	year={This Year}
+        <!-- Citation Section -->
+        <section id="citation" class="mb-16">
+            <div class="citation-container">
+                <h3>Citation</h3>
+                <div class="citation-box">
+                    <textarea id="bibtex" class="bibtex-textarea" readonly>
+@inproceedings{rosser2025agentbreeder,
+  title={AgentBreeder: Mitigating the AI Safety Impact of Multi-Agent Scaffolds via Self-Improvement},
+  author={Rosser, J and Foerster, Jakob},
+  booktitle={The Thirty-ninth Annual Conference on Neural Information Processing Systems},
+  year={2025},
+  note={NeurIPS 2025 Spotlight}
 }</textarea>
-</div></div>
+                </div>
+            </div>
+        </section>
+    </main>
 
-</div>
-<div class="row"><div class="col-md-8 col-md-offset-2"><p class="text-justify">
-<br><br>
-The website template was borrowed from <a href="http://easyacademicwebsite.github.io">Easy Academic Website Template</a> and <a href="http://jonbarron.info/">Jon Barron</a>
-</p></div></div>
-</div>
-</div>
-</div>
-</div>
+    <!-- Footer -->
+    <div class="mx-auto max-w-3xl px-4 sm:px-8 py-8 text-center text-sm opacity-75">
+        <p>The website template was borrowed from <a href="http://easyacademicwebsite.github.io">Easy Academic Website Template</a> and <a href="http://jonbarron.info/">Jon Barron</a></p>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>
